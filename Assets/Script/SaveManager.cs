@@ -86,7 +86,12 @@ namespace ru.lifanoff {
         /// <param name="oldSaver">Сохраненный на диске десериализованный файл</param>
         private void Initialize(SaveManager oldSaver) {
             try {
-                optionsManager.controlOptions.keyButtons = oldSaver.optionsManager.controlOptions.keyButtons;
+                foreach (object keyName in oldSaver.optionsManager.controlOptions.keyButtons.Keys) {
+                    if (keyName is KeyName) {
+                        KeyName kn = (KeyName)keyName;
+                        optionsManager.controlOptions.keyButtons.Add(kn, oldSaver.optionsManager.controlOptions.keyButtons[kn]);
+                    }
+                }
             } catch (Exception) { }
 
             try {

@@ -33,6 +33,7 @@ namespace ru.lifanoff.Options {
         [SerializeField] private Button downKeyButton;
         [SerializeField] private Button leftKeyButton;
         [SerializeField] private Button rightKeyButton;
+        [SerializeField] private Button runKeyButton;
         [SerializeField] private Button jumpKeyButton;
         [SerializeField] private Button useKeyButton;
         #endregion
@@ -152,6 +153,7 @@ namespace ru.lifanoff.Options {
             downKeyButton.GetComponentInChildren<Text>().text = optionsInstance.controlOptions.keyButtons[KeyName.DOWN].ToString();
             leftKeyButton.GetComponentInChildren<Text>().text = optionsInstance.controlOptions.keyButtons[KeyName.LEFT].ToString();
             rightKeyButton.GetComponentInChildren<Text>().text = optionsInstance.controlOptions.keyButtons[KeyName.RIGHT].ToString();
+            runKeyButton.GetComponentInChildren<Text>().text = optionsInstance.controlOptions.keyButtons[KeyName.RUN].ToString();
             jumpKeyButton.GetComponentInChildren<Text>().text = optionsInstance.controlOptions.keyButtons[KeyName.JUMP].ToString();
             useKeyButton.GetComponentInChildren<Text>().text = optionsInstance.controlOptions.keyButtons[KeyName.USE].ToString();
 

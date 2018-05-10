@@ -5,7 +5,7 @@
     /// </summary>
     public enum KeyName {
         UP, DOWN, LEFT, RIGHT,
-        JUMP, CROUCH, FIRE, USE
+        RUN, JUMP, USE
     }//enum
 
 }//namespace

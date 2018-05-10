@@ -14,6 +14,7 @@ namespace ru.lifanoff.Options {
             { KeyName.DOWN, KeyCode.S },
             { KeyName.LEFT, KeyCode.A },
             { KeyName.RIGHT, KeyCode.D },
+            { KeyName.RUN, KeyCode.LeftShift },
             { KeyName.JUMP, KeyCode.Space },
             { KeyName.USE, KeyCode.Mouse0 },
         };
