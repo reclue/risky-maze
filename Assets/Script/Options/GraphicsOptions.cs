@@ -9,7 +9,7 @@ namespace ru.lifanoff.Options {
     public class GraphicsOptions {
         public bool isFullscreen = true;
         public int resolution = 0;
-        public int textureQuality = 0;
+        public int textureQuality = 2;
         public int antialiasing = 0;
         public int vSync = 0;
     }//class

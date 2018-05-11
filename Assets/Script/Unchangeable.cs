@@ -18,6 +18,7 @@ namespace ru.lifanoff {
         public const string CAMERA_PLAYER_TAG = "PlayerCamera";
         public const string PLAYER_HUD_TAG = "PlayerHUD";
         public const string GAME_CONTROLLER_TAG = "GameController";
+        public const string MAZE_TAG = "Maze";
         #endregion
 
 
@@ -46,10 +47,11 @@ namespace ru.lifanoff {
         #endregion
 
         #region Chunk
-        public const float CHUNK_SIZE = 4f; // 4 юнита
+        /// <summary>Размер обного составного "блока" лабиринта</summary>
+        public const float CHUNK_SIZE = 4f;
         #endregion
 
-        #region Input
+        #region Input Manager
         public const string HORIZONTAL_INPUT = "Horizontal";
         public const string LEFT_RIGHT_INPUT = HORIZONTAL_INPUT;
         public const string VERTICAL_INPUT = "Vertical";

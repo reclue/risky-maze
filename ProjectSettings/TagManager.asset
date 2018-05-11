@@ -6,6 +6,7 @@ TagManager:
   tags:
   - PlayerCamera
   - PlayerHUD
+  - Maze
   layers:
   - Default
   - TransparentFX
