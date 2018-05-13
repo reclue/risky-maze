@@ -36,6 +36,8 @@ namespace ru.lifanoff.Maze {
 
         /// <summary>Инициализация <seealso cref="maze"/></summary>
         private void InitMaze() {
+            maze = new List<List<Chunk>>();
+
             for (int x = 0; x < sizeX; x++) {
                 maze.Add(new List<Chunk>());
 
