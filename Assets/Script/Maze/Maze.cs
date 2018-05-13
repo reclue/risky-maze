@@ -17,7 +17,7 @@ namespace ru.lifanoff.Maze {
 
 
         /// <summary>Манипуляции со структурой лабиринта</summary>
-        private MazeGenerate mazeGenerate;
+        private MazeGenerate mazeStructure;
 
         /// <summary>Игровой контроллер</summary>
         private GameController gameController;
@@ -28,14 +28,15 @@ namespace ru.lifanoff.Maze {
             // Сгенерировать лабиринт случайного размера
             int mazeSizeX = Random.Range(MIN_SIZE_MAZE, MAX_SIZE_MAZE);
             int mazeSizeY = Random.Range(MIN_SIZE_MAZE, MAX_SIZE_MAZE);
-            mazeGenerate = new MazeGenerate(mazeSizeX, mazeSizeY);
+            mazeStructure = new MazeGenerate(mazeSizeX, mazeSizeY);
         }
 
         void Start() {
             gameController = GameController.Instance;
-
-
-
+            /*Debug.Log($"size x:{mazeStructure.sizeX}; size y:{mazeStructure.sizeY}");
+            foreach (Chunk chunk in mazeStructure) {
+                Debug.Log($"x:{chunk.x}; y:{chunk.y}");
+            }*/
         }
         #endregion
 
