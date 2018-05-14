@@ -109,6 +109,13 @@ namespace ru.lifanoff.Maze {
             }
         }
 
+        /// <summary>У блока есть хотя бы одна стена</summary>
+        public bool hasAnyWalls {
+            get {
+                return !hasNoOneWalls;
+            }
+        }
+
         /// <summary>У блока нет ни одной стены</summary>
         public bool hasNoOneWalls {
             get {
@@ -123,6 +130,13 @@ namespace ru.lifanoff.Maze {
             }
         }
 
+        /// <summary>У текущего блока есть хотя бы один соседний блок</summary>
+        public bool hasAnyChunks {
+            get {
+                return !hasNoOneBlocks;
+            }
+        }
+
         /// <summary>У блока нет ни одного соседнего блока</summary>
         public bool hasNoOneBlocks {
             get {
@@ -133,6 +147,9 @@ namespace ru.lifanoff.Maze {
 
         /// <summary>Расположен ли в блоке ключ от выхода</summary>
         public bool hasExitKey = false;
+
+        /// <summary>Метка для использования в алгоритмах.</summary>
+        public bool isChecked = false;
 
     }//class
 }//namespace

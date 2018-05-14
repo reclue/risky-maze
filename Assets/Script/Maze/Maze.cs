@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-
 namespace ru.lifanoff.Maze {
 
     /// <summary>
@@ -33,15 +32,10 @@ namespace ru.lifanoff.Maze {
 
         void Start() {
             gameController = GameController.Instance;
-            /*Debug.Log($"size x:{mazeStructure.sizeX}; size y:{mazeStructure.sizeY}");
-            foreach (Chunk chunk in mazeStructure) {
-                Debug.Log($"x:{chunk.x}; y:{chunk.y}");
-            }*/
+
+
         }
         #endregion
 
-
-
     }//class
-
 }//namespace
