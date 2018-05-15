@@ -12,12 +12,16 @@ namespace ru.lifanoff.Maze {
         public Side side { get; private set; }
 
         /// <summary>Расположен ли в стене выход</summary>
-        public bool isExit = false;
+        public bool hasExit = false;
 
+        /// <summary>В каком блоке расположена стена</summary>
+        public Chunk chunk { get; private set; }
 
         /// <param name="side">Сторона расположения стены</param>
-        public Wall(Side side) {
+        /// <param name="chunk">В каком блоке расположена стена</param>
+        public Wall(Side side, Chunk chunk) {
             this.side = side;
+            this.chunk = chunk;
         }
 
     }//class

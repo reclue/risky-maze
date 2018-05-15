@@ -50,7 +50,12 @@ namespace ru.lifanoff {
             return null;
         }
 
-
+        /// <summary>Получить размер перечисления enum</summary>
+        /// <param name="enumType">typeof([__any_enum__])</param>
+        /// <returns>Размер перечисления</returns>
+        public static int GetEnumLenght(Type enumType) {
+            return Enum.GetValues(enumType).Length;
+        }
     }
 
 }

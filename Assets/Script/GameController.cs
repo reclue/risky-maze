@@ -48,10 +48,17 @@ namespace ru.lifanoff {
         #endregion
 
 
+        #region Настройки игрока
+        /// <summary>Есть ли у игрока ключ от выхода</summary>
+        public bool playerHasKey;
+        #endregion
+
+
         #region Unity Events
         void Awake() {
             if (instance == null) {
                 cursorController = CursorController.Instance;
+                playerHasKey = false;
                 instance = this;
             } else if (instance != this) {
                 Destroy(gameObject);

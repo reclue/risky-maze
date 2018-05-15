@@ -50,7 +50,7 @@ namespace ru.lifanoff.Player {
             PlayerRotation();
         }
 
-        void FixedUpdate() {
+        void Update() {
             isGrounded = IsGrounded();
             isRunning = Input.GetButton(Unchangeable.RUN_INPUT);
             currentSpeed = isRunning ? speedRunning : speedWalking;
@@ -59,7 +59,7 @@ namespace ru.lifanoff.Player {
             PlayerJump();
             PlayerRotation();
 
-            characterController.Move(currentMovement * Time.fixedDeltaTime);
+            characterController.Move(currentMovement * Time.deltaTime);
         }
         #endregion
 
@@ -73,7 +73,7 @@ namespace ru.lifanoff.Player {
 
             if (isJumping) {
                 AirControl(directionMovement, ref currentMovement);
-                currentMovement.y += 2f * gravity * Time.fixedDeltaTime;
+                currentMovement.y += 2f * gravity * Time.deltaTime;
             } else {
                 currentMovement = MakeCurrentMovement(directionMovement);
             }//fi isJumping

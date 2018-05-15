@@ -41,14 +41,40 @@ namespace ru.lifanoff.Maze {
             }
         }
 
-        #region реалирация методов интерфейсов IEnumerable and IEnumerator
+
+        /// <summary>Стена, которая содержит выход с уровня</summary>
+        public Wall exitWall { get; private set; }
+        /// <summary>Есть ли выход с уровня</summary>
+        public bool hasExit {
+            get { return exitWall != null; }
+        }
+
+        /// <summary>Блок, который содержит ключ от выхода с уровня</summary>
+        public Chunk exitKeyChunk { get; private set; }
+        /// <summary>Есть ли ключ от выхода с уровня</summary>
+        public bool hasExitKey {
+            get { return exitKeyChunk != null; }
+        }
+
+
+        /// <param name="x">Размер лабиринта по оси X (количество блоков по оси X)</param>
+        /// <param name="y">Размер лабиринта по оси Y (количество блоков по оси Y)</param>
+        public MazeGenerate(int x, int y) {
+            sizeX = x;
+            sizeY = y;
+            maze = new List<List<Chunk>>();
+
+            Generate();
+        }
+
+
+        #region реалирация методов интерфейсов IEnumerable и IEnumerator
         private int enumeratorIndexX = 0;
         private int enumeratorIndexY = -1;
 
         public IEnumerator GetEnumerator() {
             return this;
         }
-
 
         public object Current {
             get { return this[enumeratorIndexX, enumeratorIndexY]; }
@@ -74,25 +100,7 @@ namespace ru.lifanoff.Maze {
             enumeratorIndexX = 0;
             enumeratorIndexY = -1;
         }
-
-        public IEnumerable<Chunk> GetSequenceOfBlocks() {
-            foreach (List<Chunk> chunks in maze) {
-                foreach (Chunk chunk in chunks) {
-                    yield return chunk;
-                }
-            }
-        }
-        #endregion IEnumerable and IEnumerator
-
-        /// <param name="x">Размер лабиринта по оси X (количество блоков по оси X)</param>
-        /// <param name="y">Размер лабиринта по оси Y (количество блоков по оси Y)</param>
-        public MazeGenerate(int x, int y) {
-            sizeX = x;
-            sizeY = y;
-            maze = new List<List<Chunk>>();
-
-            Generate();
-        }
+        #endregion IEnumerable, IEnumerator
 
 
         /// <summary>Генерация лабиринта</summary>
@@ -101,6 +109,8 @@ namespace ru.lifanoff.Maze {
             AssignNeighborChunks();
             AssignWallsChunks();
             MakeMaze();
+            AddExit();
+            AddExitKey();
         }
 
         /// <summary>Заполнить <seealso cref="maze"/></summary>
@@ -127,10 +137,10 @@ namespace ru.lifanoff.Maze {
         /// <summary>Установить стены во все блоки</summary>
         private void AssignWallsChunks() {
             foreach (Chunk chunk in this) {
-                chunk.leftWall = new Wall(Side.LEFT);
-                chunk.rightWall = new Wall(Side.RIGHT);
-                chunk.topWall = new Wall(Side.TOP);
-                chunk.bottomWall = new Wall(Side.BOTTOM);
+                chunk.leftWall = new Wall(Side.LEFT, chunk);
+                chunk.rightWall = new Wall(Side.RIGHT, chunk);
+                chunk.topWall = new Wall(Side.TOP, chunk);
+                chunk.bottomWall = new Wall(Side.BOTTOM, chunk);
             }
         }
 
@@ -138,6 +148,7 @@ namespace ru.lifanoff.Maze {
         /// <summary>Составить лабиринт</summary>
         private void MakeMaze() {
             HuntAndKill(GetRandomChunk());
+            ResetChunkIsChecked();
         }
 
         #region HuntAndKill
@@ -204,31 +215,7 @@ namespace ru.lifanoff.Maze {
                 return;
             }
 
-            // выбрать случайную сторону
-            switch (sides[rnd.Next(sides.Count)]) {
-                // Убрать стену между текущим блоком и блоком с выбранной стороны,
-                // а также, назначить выбранный блок текущим.
-                case Side.LEFT:
-                    currentChunk.leftWall = null;
-                    currentChunk.leftChunk.rightWall = null;
-                    currentChunk = currentChunk.leftChunk;
-                    break;
-                case Side.RIGHT:
-                    currentChunk.rightWall = null;
-                    currentChunk.rightChunk.leftWall = null;
-                    currentChunk = currentChunk.rightChunk;
-                    break;
-                case Side.TOP:
-                    currentChunk.topWall = null;
-                    currentChunk.topChunk.bottomWall = null;
-                    currentChunk = currentChunk.topChunk;
-                    break;
-                case Side.BOTTOM:
-                    currentChunk.bottomWall = null;
-                    currentChunk.bottomChunk.topWall = null;
-                    currentChunk = currentChunk.bottomChunk;
-                    break;
-            }
+            currentChunk = RemoveWall(currentChunk, sides[rnd.Next(sides.Count)]);
         }
 
         /// <summary>Убрать стену между текущим блоком и случайным посещенным соседним блоком.</summary>
@@ -247,34 +234,184 @@ namespace ru.lifanoff.Maze {
                 return;
             }
 
-            // выбрать случайную сторону
-            switch (sides[rnd.Next(sides.Count)]) {
+            currentChunk = RemoveWall(currentChunk, sides[rnd.Next(sides.Count)]);
+        }
+
+        /// <summary>
+        /// Удалить стену в указанном блоке <paramref name="currentChunk"/>
+        /// и вернуть соседний блок, в котором тоже была удалена стена
+        /// </summary>
+        /// <param name="currentChunk">Блок, в котором будет удалена стена</param>
+        /// <param name="side">Сторона, с которой будет удалена стена</param>
+        /// <returns>
+        /// Соседний блок относительно блока <paramref name="currentChunk"/>, 
+        /// в котором была удалена стена
+        /// </returns>
+        private Chunk RemoveWall(Chunk currentChunk, Side side) {
+            Chunk newCurrentChunk = null;
+
+            switch (side) {
                 // Убрать стену между текущим блоком и блоком с выбранной стороны,
                 // а также, назначить выбранный блок текущим.
                 case Side.LEFT:
                     currentChunk.leftWall = null;
                     currentChunk.leftChunk.rightWall = null;
-                    currentChunk = currentChunk.leftChunk;
+                    newCurrentChunk = currentChunk.leftChunk;
                     break;
                 case Side.RIGHT:
                     currentChunk.rightWall = null;
                     currentChunk.rightChunk.leftWall = null;
-                    currentChunk = currentChunk.rightChunk;
+                    newCurrentChunk = currentChunk.rightChunk;
                     break;
                 case Side.TOP:
                     currentChunk.topWall = null;
                     currentChunk.topChunk.bottomWall = null;
-                    currentChunk = currentChunk.topChunk;
+                    newCurrentChunk = currentChunk.topChunk;
                     break;
                 case Side.BOTTOM:
                     currentChunk.bottomWall = null;
                     currentChunk.bottomChunk.leftWall = null;
-                    currentChunk = currentChunk.bottomChunk;
+                    newCurrentChunk = currentChunk.bottomChunk;
                     break;
             }
+
+            return newCurrentChunk;
         }
         #endregion HuntAndKill
         #endregion MakeMaze
+
+
+        #region AddExit
+        /// <summary>Добавить выход в одну из крайних стен</summary>
+        private void AddExit() {
+            if (hasExit) return;
+
+            List<Wall> outerWalls = FindOuterWalls();
+
+            exitWall = outerWalls[rnd.Next(outerWalls.Count)];
+            exitWall.hasExit = true;
+        }
+
+        /// <summary>Найти все внешние стены</summary>
+        /// <returns>Список, в который будут сохранены найденные стены</returns>
+        private List<Wall> FindOuterWalls() {
+            List<Wall> outerWalls = new List<Wall>();
+
+            foreach (Chunk chunk in this) {
+                if (chunk.x == 0 || chunk.y == 0) {
+                    if (!chunk.hasLeftChunk && chunk.hasLeftWall) outerWalls.Add(chunk.leftWall);
+                    if (!chunk.hasRightChunk && chunk.hasRightWall) outerWalls.Add(chunk.rightWall);
+                    if (!chunk.hasTopChunk && chunk.hasTopWall) outerWalls.Add(chunk.topWall);
+                    if (!chunk.hasBottomChunk && chunk.hasBottomWall) outerWalls.Add(chunk.bottomWall);
+                }
+            }//hcaerof
+
+            return outerWalls;
+        }
+        #endregion AddExit
+
+
+        #region AddExitKey
+        /// <summary>Добавить ключ в самый дальний блок относительно блока с выходом</summary>
+        private void AddExitKey() {
+            if (hasExitKey) return;
+
+            List<Chunk> farthestChunks = FindFarthestChunksFromExit();
+
+            exitKeyChunk = farthestChunks[rnd.Next(farthestChunks.Count)];
+            exitKeyChunk.hasExitKey = true;
+        }
+
+        /// <summary>Найти все самые дальние блоки относительно блока с выходом</summary>
+        /// <returns>Список, в который будут сохранены найденные блоки</returns>
+        private List<Chunk> FindFarthestChunksFromExit() {
+            List<List<Chunk>> chunkPaths = MakeListPaths(exitWall.chunk);
+            ResetChunkIsChecked();
+            return GetFarthestChunksFromListPaths(chunkPaths);
+        }
+
+        /// <summary>Составить список путей</summary>
+        /// <param name="startChunk">Стартовый блок</param>
+        /// <param name="chunkPaths">Список, в который созранятся пути</param>
+        /// <returns>Список путей</returns>
+        private List<List<Chunk>> MakeListPaths(Chunk startChunk) {
+            List<List<Chunk>> pathsChunks = new List<List<Chunk>>() { new List<Chunk>() { startChunk } };
+
+            Queue<List<Chunk>> fifoStackChunks = new Queue<List<Chunk>>();
+            fifoStackChunks.Enqueue(new List<Chunk>() { startChunk });
+
+            while (fifoStackChunks.Count > 0) {
+                List<Chunk> currentChunks = fifoStackChunks.Dequeue().ToList();
+
+                Chunk lastChunk = currentChunks.Last();
+
+                if (lastChunk.isChecked) {
+                    continue;
+                } else {
+                    lastChunk.isChecked = true;
+                }//fi
+
+                List<Chunk> neighboringUncheckedChunks = FindNeighboringUncheckedChunks(lastChunk);
+
+                foreach (Chunk neighboringChunk in neighboringUncheckedChunks) {
+                    currentChunks.Add(neighboringChunk);
+                    pathsChunks.Add(currentChunks);
+                    fifoStackChunks.Enqueue(currentChunks.ToList());
+                }//hcaerof
+
+            }//elihw
+
+            return pathsChunks;
+        }
+
+        /// <summary>Добавить непосещенные соседние блоки, между которыми нет стены</summary>
+        /// <param name="currentChunk">Блок, относительно которого ведется поиск</param>
+        /// <returns>Список сосеждних блоков относительно блока <paramref name="currentChunk"/></returns>
+        private List<Chunk> FindNeighboringUncheckedChunks(Chunk currentChunk) {
+            List<Chunk> neighboringUncheckedChunks = new List<Chunk>();
+
+            if (!currentChunk.hasLeftWall &&
+                currentChunk.hasLeftChunk &&
+                !currentChunk.leftChunk.isChecked) {
+
+                neighboringUncheckedChunks.Add(currentChunk.leftChunk);
+            }//if left
+
+            if (!currentChunk.hasRightWall &&
+                currentChunk.hasRightChunk &&
+                !currentChunk.rightChunk.isChecked) {
+
+                neighboringUncheckedChunks.Add(currentChunk.rightChunk);
+            }//if right
+
+            if (!currentChunk.hasTopWall &&
+                currentChunk.hasTopChunk &&
+                !currentChunk.topChunk.isChecked) {
+
+                neighboringUncheckedChunks.Add(currentChunk.topChunk);
+            }//if top
+
+            if (!currentChunk.hasBottomWall &&
+                currentChunk.hasBottomChunk &&
+                !currentChunk.bottomChunk.isChecked) {
+
+                neighboringUncheckedChunks.Add(currentChunk.bottomChunk);
+            }//if bottom
+
+            return neighboringUncheckedChunks;
+        }
+
+        /// <summary>Получить дальние блоки из списка путей</summary>
+        /// <param name="chunkPaths">Список путей</param>
+        /// <returns>Список дальних блоков</returns>
+        private List<Chunk> GetFarthestChunksFromListPaths(List<List<Chunk>> chunkPaths) {
+            List<Chunk> farthestChunks = chunkPaths.GroupBy(c => c.Count).
+                                                    OrderByDescending(g => g.Key).First().
+                                                    Select(f => f.Last()).ToList();
+
+            return farthestChunks;
+        }
+        #endregion AddExitKey
 
 
         /// <summary>Получить случайный блок из списка</summary>
@@ -283,6 +420,25 @@ namespace ru.lifanoff.Maze {
             int y = rnd.Next(sizeY);
             return this[x, y];
         }
+
+
+        #region Chunk.isChecked
+        /// <summary>Сбросить <seealso cref="Chunk.isChecked"/> во всех блоках текущего объекта</summary>
+        public void ResetChunkIsChecked() {
+            ChunkIsChecked(false);
+        }
+
+        /// <summary>
+        /// Изменить <seealso cref="Chunk.isChecked"/> во всех блоках текущего объекта,
+        /// в соответствии с параметром <paramref name="isChecked"/>.
+        /// </summary>
+        /// <param name="isChecked">новое значение для всех <seealso cref="Chunk.isChecked"/></param>
+        private void ChunkIsChecked(bool isChecked) {
+            foreach (Chunk chunk in this) {
+                chunk.isChecked = isChecked;
+            }
+        }
+        #endregion Chunk.isChecked
 
     }//class
 }//namespace

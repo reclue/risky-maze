@@ -20,6 +20,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4106039764235752}
   - component: {fileID: 114306943307646596}
+  - component: {fileID: 114827064254014480}
   m_Layer: 0
   m_Name: Maze
   m_TagString: Maze
@@ -51,3 +52,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 015cd52bdb7917f44959e09222a1a4ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &114827064254014480
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1988701284847080}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f73cac53c432b7a46bf9937be7196526, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prefabsInspector:
+  - id: 2
+    prefab: {fileID: 1251326520002480, guid: d0f457cabd782ef42921812aee1fae34, type: 2}
+  - id: 2
+    prefab: {fileID: 1314576548914548, guid: 518c24507613d1240a1e00665d40167a, type: 2}
