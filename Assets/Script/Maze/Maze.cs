@@ -238,7 +238,12 @@ namespace ru.lifanoff.Maze {
 
         /// <summary>Разместить игрока в центре случайного блока</summary>
         private void RandomPlayerPosition() {
-            Chunk chunk = mazeStructure.GetRandomChunk();
+            Chunk chunk = null;
+
+            // Исключить возможность появления игрока в одном блоке с ключем от выхода
+            while (chunk == null || chunk.hasExitKey) {
+                chunk = mazeStructure.GetRandomChunk();
+            }
 
             Vector3 newPosition = Vector3.zero;
             newPosition.x = (chunk.x * chunkSize) + (chunkSize / 2f);
