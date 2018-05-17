@@ -192,6 +192,24 @@ namespace ru.lifanoff.Maze {
             newPosition.z = chunk.y * chunkSize;
 
             gameObjectExitKey.transform.position = newPosition;
+
+            // Развернуть стенд с ключем в сторону отсутствующей стены
+            Vector3 newRotation = Vector3.zero;
+            newRotation.x = gameObjectExitKey.transform.eulerAngles.x;
+            newRotation.y = gameObjectExitKey.transform.eulerAngles.y;
+            newRotation.z = gameObjectExitKey.transform.eulerAngles.z;
+
+            if (!chunk.hasRightWall) {
+                newRotation.y -= 90f;
+            } else if (!chunk.hasLeftWall) {
+                newRotation.y += 90f;
+            } else if (!chunk.hasTopWall) {
+                newRotation.y += 180f;
+            } // в остальных случаях newRotation.y остается прежним
+
+            gameObjectExitKey.transform.eulerAngles = newRotation;
+
+
             gameObjectExitKey.SetActive(true);
         }
 
@@ -242,7 +260,7 @@ namespace ru.lifanoff.Maze {
             } else if (!chunk.hasLeftWall) {
                 newRotation.y = 180f;
             } else if (!chunk.hasTopWall) {
-                newRotation.y = 270f;
+                newRotation.y = -90;
             } else { // Оставить прежний разворот
                 newRotation.y = currentPlayer.transform.rotation.y;
             }
