@@ -17,18 +17,19 @@ namespace ru.lifanoff.Options {
         [Header("Canvas Panel")]
         [SerializeField] private GameObject mainMenuCanvas;
         [SerializeField] private GameObject optionsMenuCanvas;
+        [SerializeField] private GameObject difficultCanvas;
 
-        [Header("Объекты мз панели GraphicsPanel для сериализации")]
+        [Header("Объекты из панели GraphicsPanel для сериализации")]
         [SerializeField] private Toggle fullscreenToggle;
         [SerializeField] private Dropdown resolutionDropdown;
         [SerializeField] private Dropdown textureDropdown;
         [SerializeField] private Dropdown antialiasingDropdown;
         [SerializeField] private Dropdown vSyncDropdown;
 
-        [Header("Объекты мз панели MusicPanel для сериализации")]
+        [Header("Объекты из панели MusicPanel для сериализации")]
         [SerializeField] private Slider musicSlider;
 
-        [Header("Объекты мз панели ControlPanel для сериализации")]
+        [Header("Объекты из панели ControlPanel для сериализации")]
         [SerializeField] private Slider mouseSensitivityX;
         [SerializeField] private Slider mouseSensitivityY;
         [SerializeField] private Button upKeyButton;
@@ -65,6 +66,7 @@ namespace ru.lifanoff.Options {
             /* Настройка меню, которое должно отображаться изначально при старте игры */
             mainMenuCanvas.SetActive(true);
             optionsMenuCanvas.SetActive(false);
+            difficultCanvas.SetActive(false);
 
             // Применить настройки игры из файла-сохранения
             ApplySaveOptions();
@@ -72,16 +74,47 @@ namespace ru.lifanoff.Options {
         #endregion
 
 
+        #region Функции, которые запускаются при нажатии кнопок в Difficult
+
+        /// <summary>Реакция на нажатие кнопки Back в меню выбора сложности игры</summary>
+        public void DifficultBackButton() {
+            mainMenuCanvas.SetActive(true);
+            optionsMenuCanvas.SetActive(false);
+            difficultCanvas.SetActive(false);
+        }
+
+        /// <summary>Запуск игры в легком режиме</summary>
+        public void DifficultEasyGameButton() {
+            GameController.Instance.difficulMode = DifficultMode.EASY;
+            GameController.Instance.GoToNextScene(Unchangeable.GAME_SCENE_NAME);
+        }
+
+        /// <summary>Запуск игры в среднем режиме</summary>
+        public void DifficultMediumGameButton() {
+            GameController.Instance.difficulMode = DifficultMode.MEDIUM;
+            GameController.Instance.GoToNextScene(Unchangeable.GAME_SCENE_NAME);
+        }
+
+        /// <summary>Запуск игры в сложном режиме</summary>
+        public void DifficultHardGameButton() {
+            GameController.Instance.difficulMode = DifficultMode.HARD;
+            GameController.Instance.GoToNextScene(Unchangeable.GAME_SCENE_NAME);
+        }
+        #endregion
+
 
         #region Функции, которые запускаются при нажатии кнопок в Main Menu
         /// <summary>Реакция на нажатие кнопки Game в главном меню (MainMenu)</summary>
         public void MainMenuGameButton() {
-            GameController.Instance.GoToNextScene(Unchangeable.GAME_SCENE_NAME);
+            mainMenuCanvas.SetActive(false);
+            optionsMenuCanvas.SetActive(false);
+            difficultCanvas.SetActive(true);
         }
 
         /// <summary>Реакция на нажатие кнопки Options в главном меню (MainMenu)</summary>
         public void MainMenuOptionsButton() {
             mainMenuCanvas.SetActive(false);
+            difficultCanvas.SetActive(false);
             /* При переходе из main menu в options надо сделать видимым слой graphics, 
              * а остальные слои скрыть. Для получения желаемого результат можно
              * использовать метод OptionMenuGraphicsButton() */
@@ -95,6 +128,7 @@ namespace ru.lifanoff.Options {
         }
         #endregion
 
+
         #region Книпки Apply и Back в меню опций
         /// <summary>Реакция на нажатие кнопки ApplyButton в меню опций</summary>
         public void OptionMenuApplyButton() {
@@ -106,8 +140,10 @@ namespace ru.lifanoff.Options {
         public void OptionMenuBackButton() {
             mainMenuCanvas.SetActive(true);
             optionsMenuCanvas.SetActive(false);
+            difficultCanvas.SetActive(false);
         }
         #endregion
+
 
         #region Функции для кнопок в LayoutTrigger, переключающие Layouts панели
         /// <summary>Деактивировать все панели</summary>

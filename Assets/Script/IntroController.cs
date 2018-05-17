@@ -9,7 +9,7 @@ using UnityEngine;
 namespace ru.lifanoff {
 
     /// <summary>
-    /// Класс-контроллер для сцены Intro
+    /// Контроллер для сцены Intro, в которой предварительно проигрываются видеовставки
     /// </summary>
     public class IntroController : MonoBehaviour {
 

@@ -9,6 +9,7 @@ TagManager:
   - Maze
   - MiniMapCamera
   - SoundController
+  - MessageToPlayer
   layers:
   - Default
   - TransparentFX

@@ -17,6 +17,7 @@ namespace ru.lifanoff {
         public const string PLAYER_TAG = "Player";
         public const string CAMERA_PLAYER_TAG = "PlayerCamera";
         public const string PLAYER_HUD_TAG = "PlayerHUD";
+        public const string MESSAGE_TO_PLAYER_TAG = "MessageToPlayer";
         public const string GAME_CONTROLLER_TAG = "GameController";
         public const string SOUND_CONTROLLER_TAG = "SoundController";
         public const string MAZE_TAG = "Maze";

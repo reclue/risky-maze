@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace ru.lifanoff.Maze {
 
@@ -9,11 +10,6 @@ namespace ru.lifanoff.Maze {
     public class Maze : MonoBehaviour {
         /// <summary>Размер игрового блока</summary>
         private float chunkSize;
-
-        /// <summary>Минимальный размер лабиринта</summary>
-        private const int MIN_SIZE_MAZE = 7;
-        /// <summary>Максимальный размер лабиринта</summary>
-        private const int MAX_SIZE_MAZE = 12;
 
         /// <summary>Объект игрока на сцене</summary>
         private GameObject currentPlayer;
@@ -26,14 +22,15 @@ namespace ru.lifanoff.Maze {
         private MazePrefabContainer mazePrefabContainer;
 
         #region Unity Engine
-        void Awake() {
-            // Сгенерировать лабиринт случайного размера
-            int mazeSizeX = Random.Range(MIN_SIZE_MAZE, MAX_SIZE_MAZE);
-            int mazeSizeY = Random.Range(MIN_SIZE_MAZE, MAX_SIZE_MAZE);
-            mazeStructure = new MazeGenerate(mazeSizeX, mazeSizeY);
-        }
-
         void Start() {
+            // Сгенерировать лабиринт случайного размера
+            int minSizeMaze = GameController.Instance.getMinSizeMaze;
+            int maxSizeMaze = GameController.Instance.getMinSizeMaze;
+            int mazeSizeX = Random.Range(minSizeMaze, maxSizeMaze);
+            int mazeSizeY = Random.Range(minSizeMaze, maxSizeMaze);
+            mazeStructure = new MazeGenerate(mazeSizeX, mazeSizeY);
+
+
             chunkSize = Chunk.CHUNK_SIZE;
 
             mazePrefabContainer = GetComponent<MazePrefabContainer>();

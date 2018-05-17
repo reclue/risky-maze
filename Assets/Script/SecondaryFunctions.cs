@@ -28,9 +28,14 @@ namespace ru.lifanoff {
             return GameObject.FindWithTag(Unchangeable.PLAYER_TAG);
         }
 
-        /// <summary>Получить инвентарь игрока, расположенного на текущей сцене</summary>
+        /// <summary>Получить HUD игрока, расположенного на текущей сцене</summary>
         public static GameObject GetPlayerHUD() {
             return GetPlayerChildGameObject(Unchangeable.PLAYER_HUD_TAG);
+        }
+
+        /// <summary>Получить игровой объект с текстовым полем для сообщений игроку</summary>
+        public static GameObject GetMessageToPlayer() {
+            return GetPlayerChildGameObject(Unchangeable.MESSAGE_TO_PLAYER_TAG);
         }
 
         /// <summary>Получить дочерний GameObject игрока по тегу goTag</summary>

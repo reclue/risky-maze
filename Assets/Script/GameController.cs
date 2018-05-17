@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace ru.lifanoff {
@@ -17,10 +18,46 @@ namespace ru.lifanoff {
             get { return instance; }
         }
 
+        static GameController() {
+            InitDifficultMode();
+        }
+
         private GameController() { }
 
         /// <summary>Настройки отображения курсора</summary>
         private CursorController cursorController;
+
+
+        /// <summary>Режим сложности игры</summary>
+        public DifficultMode difficulMode = DifficultMode.EASY;
+        /// <summary>Размеры лабиринта для различных уровней сложности игры</summary>
+        private static Dictionary<DifficultMode, Dictionary<MinMax, int>> sizeMazeDifficult;
+        /// <summary>Получить минимальный возможный размер лабиринта</summary>
+        public int getMinSizeMaze {
+            get { return sizeMazeDifficult[difficulMode][MinMax.MIN]; }
+        }
+        /// <summary>Получить максимальный возможный размер лабиринта</summary>
+        public int getMaxSizeMaze {
+            get { return sizeMazeDifficult[difficulMode][MinMax.MAX]; }
+        }
+
+        /// <summary>Инициализация словаря <seealso cref="sizeMazeDifficult"/></summary>
+        private static void InitDifficultMode() {
+            sizeMazeDifficult = new Dictionary<DifficultMode, Dictionary<MinMax, int>>();
+
+            sizeMazeDifficult.Add(DifficultMode.EASY, new Dictionary<MinMax, int>());
+            sizeMazeDifficult.Add(DifficultMode.MEDIUM, new Dictionary<MinMax, int>());
+            sizeMazeDifficult.Add(DifficultMode.HARD, new Dictionary<MinMax, int>());
+
+            sizeMazeDifficult[DifficultMode.EASY].Add(MinMax.MIN, 7);
+            sizeMazeDifficult[DifficultMode.EASY].Add(MinMax.MAX, 12);
+
+            sizeMazeDifficult[DifficultMode.MEDIUM].Add(MinMax.MIN, 15);
+            sizeMazeDifficult[DifficultMode.MEDIUM].Add(MinMax.MAX, 25);
+
+            sizeMazeDifficult[DifficultMode.HARD].Add(MinMax.MIN, 28);
+            sizeMazeDifficult[DifficultMode.HARD].Add(MinMax.MAX, 40);
+        }
 
 
         #region Названия предыдущей и следующей сцены для сцены Loader
