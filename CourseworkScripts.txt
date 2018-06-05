@@ -1,0 +1,2320 @@
+﻿CursorController.cs
+
+using UnityEngine;
+namespace ru.lifanoff {
+    /// <summary>
+    /// Класс-синглтон для управления поведением курсора
+    /// </summary>
+    public class CursorController {
+        public static CursorController Instance { get; private set; }
+        static CursorController() {
+            if (Instance == null) {
+                Instance = new CursorController();
+                Instance.CursorIsHide = true;
+            }
+        }
+        private CursorController() { }
+        /// <summary>Скрыть\показать курсор</summary>
+        private bool cursorIsHide = true;
+        /// <summary>Скрыть\показать курсор</summary>
+        public bool CursorIsHide {
+            get { return cursorIsHide; }
+            set {
+                cursorIsHide = value;
+                if (cursorIsHide) {
+                    Cursor.visible = false;
+                    Cursor.lockState = CursorLockMode.Locked;
+                } else {
+                    Cursor.visible = true;
+                    Cursor.lockState = CursorLockMode.None;
+                }
+            }
+        }
+    }
+}
+
+DifficultMode.cs
+
+namespace ru.lifanoff {
+    /// <summary>
+    /// Режим сложности игры
+    /// </summary>
+    public enum DifficultMode {
+        /// <summary>Легкий</summary>
+        EASY,
+        /// <summary>Средний</summary>
+        MEDIUM,
+        /// <summary>Сложный</summary>
+        HARD
+    }//class
+}//namespace
+
+GameController.cs
+
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+namespace ru.lifanoff {
+    /// <summary>
+    /// Класс-синглтон, который хранит и передает данные между сценами.
+    /// Этот класс прикреплен к специальному объекту на сцене, который не удаляется при смене сцены.
+    /// </summary>
+    public class GameController : MonoBehaviour {
+        /// <summary>Единственный экземпляр класса <seealso cref="GameController"/></summary>
+        public static GameController Instance { get; private set; }
+        static GameController() {
+            InitDifficultMode();
+        }
+        private GameController() { }
+        /// <summary>Настройки отображения курсора</summary>
+        private CursorController cursorController;
+        /// <summary>Режим сложности игры</summary>
+        public DifficultMode difficulMode = DifficultMode.EASY;
+        /// <summary>Размеры лабиринта для различных уровней сложности игры</summary>
+        private static Dictionary<DifficultMode, Dictionary<MinMax, int>> sizeMazeDifficult;
+        /// <summary>Получить минимальный возможный размер лабиринта</summary>
+        public int getMinSizeMaze {
+            get { return sizeMazeDifficult[difficulMode][MinMax.MIN]; }
+        }
+        /// <summary>Получить максимальный возможный размер лабиринта</summary>
+        public int getMaxSizeMaze {
+            get { return sizeMazeDifficult[difficulMode][MinMax.MAX]; }
+        }
+        /// <summary>Инициализация словаря <seealso cref="sizeMazeDifficult"/></summary>
+        private static void InitDifficultMode() {
+            sizeMazeDifficult = new Dictionary<DifficultMode, Dictionary<MinMax, int>>();
+            sizeMazeDifficult.Add(DifficultMode.EASY, new Dictionary<MinMax, int>());
+            sizeMazeDifficult.Add(DifficultMode.MEDIUM, new Dictionary<MinMax, int>());
+            sizeMazeDifficult.Add(DifficultMode.HARD, new Dictionary<MinMax, int>());
+            sizeMazeDifficult[DifficultMode.EASY].Add(MinMax.MIN, 7);
+            sizeMazeDifficult[DifficultMode.EASY].Add(MinMax.MAX, 12);
+            sizeMazeDifficult[DifficultMode.MEDIUM].Add(MinMax.MIN, 15);
+            sizeMazeDifficult[DifficultMode.MEDIUM].Add(MinMax.MAX, 25);
+            sizeMazeDifficult[DifficultMode.HARD].Add(MinMax.MIN, 28);
+            sizeMazeDifficult[DifficultMode.HARD].Add(MinMax.MAX, 40);
+        }
+        #region Названия предыдущей и следующей сцены для сцены Loader
+        /// <summary>Сцена PreLoader</summary>
+        private const string PRELOADER_SCENE_NAME = Unchangeable.PRELOADER_SCENE_NAME;
+        /// <summary>Название текущей сцены. Также, это будет предыдущая сцена относительно сцены <seealso cref="PRELOADER_SCENE_NAME"/></summary>
+        [HideInInspector] public string currentSceneName;
+        /// <summary>Название следующей сцены относительно сцены <seealso cref="PRELOADER_SCENE_NAME"/></summary>
+        [HideInInspector] public string nextSceneName;
+        #endregion
+        #region Unity Events
+        void Awake() {
+            if (Instance == null) {
+                cursorController = CursorController.Instance;
+                Instance = this;
+            } else if (Instance != this) {
+                Destroy(gameObject);
+            }
+            DontDestroyOnLoad(gameObject);
+            Instance.Initialize();
+        }
+        #endregion
+        /// <summary>Инициализация специфических настроек</summary>
+        private void Initialize() {
+            currentSceneName = SceneInformation.GetCurrentSceneName();
+            // Показать или скрыть курсор на определенных сценах
+            if (currentSceneName == Unchangeable.PRELOADER_SCENE_NAME || currentSceneName == Unchangeable.MAIN_MENU_SCENE_NAME) {
+                Instance.cursorController.CursorIsHide = false;
+            } else {
+                Instance.cursorController.CursorIsHide = true;
+            }
+        }
+        /// <summary>Переключение на другую сцену</summary>
+        /// <param name="nextScene">Сцена, на которую переключаемся</param>
+        public void GoToNextScene(string nextScene) {
+            currentSceneName = SceneInformation.GetCurrentSceneName();
+            nextSceneName = nextScene;
+            SceneManager.LoadScene(PRELOADER_SCENE_NAME);
+        }
+    }//class
+}//namespace
+
+IntroController.cs
+
+using UnityEngine;
+namespace ru.lifanoff {
+    /// <summary>
+    /// Контроллер для сцены Intro, в которой предварительно проигрываются видеовставки
+    /// </summary>
+    public class IntroController : MonoBehaviour {
+        #region Unity events
+        void Start() {
+            GameController.Instance.GoToNextScene(Unchangeable.MAIN_MENU_SCENE_NAME);
+        }
+        #endregion
+    }//class
+}//namespace
+
+MinMax.cs
+
+namespace ru.lifanoff {
+    /// <summary>
+    /// Перечисление для обознаяения минимального и максимального значения
+    /// </summary>
+    enum MinMax {
+        MIN, MAX
+    };
+}//namespace
+
+PauseController.cs
+
+using UnityEngine;
+namespace ru.lifanoff {
+    /// <summary>
+    /// Управление меню "Пауза" в процессе игры
+    /// </summary>
+    public class PauseController : MonoBehaviour {
+        /// <summary>Находится ли игра в режиме паузы</summary>
+        [HideInInspector] public bool isPaused { get; private set; }
+        /// <summary>Отображаемая панель во время паузы</summary>
+        [SerializeField] private RectTransform pausePanel;
+        #region Unity events
+        void Start() {
+            if (pausePanel == null) {
+                pausePanel = GetComponentInChildren<RectTransform>();
+            }
+            isPaused = false;
+            pausePanel.gameObject.SetActive(isPaused);
+        }
+        void Update() {
+            if (Input.GetButtonDown(Unchangeable.ESCAPE_INPUT)) {
+                PauseSwitcher();
+            }
+        }
+        #endregion
+        public void PauseSwitcher() {
+            isPaused = !isPaused;
+            pausePanel.gameObject.SetActive(isPaused);
+            PlayerManager.Instance.canMoving = !isPaused;
+            CursorController.Instance.CursorIsHide = !isPaused;
+            if (isPaused) {
+                Time.timeScale = Unchangeable.PAUSE_TIMESCALE;
+            } else {
+                Time.timeScale = Unchangeable.DEFAULT_TIMESCALE;
+            }
+        }
+        #region реакция на нажатия кнопок в меню паузы
+        /// <summary>Вернуться в игру из меню паузы</summary>
+        public void OnResumeClick() {
+            PauseSwitcher();
+        }
+        /// <summary>Выйти в главное меню игры</summary>
+        public void OnMainMenuClick() {
+            PauseSwitcher();
+            GameController.Instance.GoToNextScene(Unchangeable.MAIN_MENU_SCENE_NAME);
+        }
+        /// <summary>Выти из игры</summary>
+        public void OnExitGameClick() {
+            Application.Quit();
+        }
+        #endregion 
+    }//class
+}//namespace
+
+PreLoader.cs
+
+using System.Collections;
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+namespace ru.lifanoff {
+    /// <summary>
+    /// Предзагрузка сцен
+    /// </summary>
+    public class PreLoader : MonoBehaviour {
+        // Загружаемая сцена
+        private string sceneName;
+        /// <summary>Текстовое поле отображающее сколько осталось процентов до конца загрузки сцены"</summary>
+        private Text progressText;
+        // Контроллер игры, который содержит информацию о предыдущей и следующем уровнях
+        private GameController gameController;
+        #region Unity Events
+        void Start() {
+            gameController = GameController.Instance;
+            sceneName = gameController.nextSceneName;
+            // Если переменная sceneName имеет пустое содержимое или указанной сцены нет в списке активных сцен, 
+            // то присвоить sceneName название предыдущей сцены, с которой попали в сцену PreLoader.
+            if (string.IsNullOrWhiteSpace(sceneName)) {
+                if (!SceneInformation.ActiveNames.Contains(sceneName)) {
+                    sceneName = gameController.currentSceneName;
+                }
+            }
+            progressText = GetComponentInChildren<Text>(true);
+            StartCoroutine(AsyncSceneLoader());
+        }
+        #endregion
+        /// <summary>
+        /// Корутина, которая асинхронно загружает следующую сцену, указанную в sceneName и показывает прогресс загрузки в процентах.
+        /// </summary>
+        private IEnumerator AsyncSceneLoader() {
+            AsyncOperation operation = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
+            while (!operation.isDone) {
+                float progress = operation.progress / .9f; // Делим на .9f чтобы прогресс шел от 0 до 1, а не от 0 до 0.9
+                progressText.text = string.Format("{0:P}", progress); // Выводим в виде процентов
+                yield return null;
+            }
+        }
+    }//class
+}//namespace
+
+ResultController.cs
+
+using UnityEngine;
+namespace ru.lifanoff {
+    /// <summary>
+    /// Скрипт, контролирующий меню на сцене Result
+    /// </summary>
+    public class ResultController : MonoBehaviour {
+        #region Unity Events
+        void Start() {
+            CursorController.Instance.CursorIsHide = false;
+        }
+        #endregion
+        /// <summary>Выйти в главное меню игры</summary>
+        public void OnMainMenuClick() {
+            GameController.Instance.GoToNextScene(Unchangeable.MAIN_MENU_SCENE_NAME);
+        }
+    }//class
+}//namespace
+
+SaveManager.cs
+
+using System;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
+using ru.lifanoff.Options;
+namespace ru.lifanoff {
+    /// <summary>
+    /// Класс-синглтон, для хранения настроек игры
+    /// </summary>
+    [Serializable]
+    public class SaveManager {
+        /// <summary>Полный путь к сейв-файлу</summary>
+        [NonSerialized] public static string FILEPATH = Path.GetFullPath(@"./saves/CourseworkSave.bin");
+        /// <summary>Директория в который расположен сейв-файл</summary>
+        [NonSerialized] public static string FILEDIR = Path.GetDirectoryName(FILEPATH);
+        /// <summary>Только имя и расширение сейв-файл</summary>
+        [NonSerialized] public static string FILENAME = Path.GetFileName(FILEPATH);
+        /// <summary>Единственный экземпляр класса <seealso cref="SaveManager"/></summary>
+        public static SaveManager Instance { get; private set; }
+        static SaveManager() {
+            if (Instance == null) {
+                Instance = new SaveManager();
+            }
+            Instance.Load();
+        }
+        private SaveManager() { }
+        /// <summary>Ссылка на единственный экземпляр класса OptionsManager</summary>
+        public OptionsManager optionsManager { get; private set; } = OptionsManager.Instance;
+        /// <summary>
+        /// Сохранить (сериализовать) данные в файл <seealso cref="FILEPATH"/>
+        /// </summary>
+        public void Save() {
+            if (!Directory.Exists(FILEDIR)) {
+                Directory.CreateDirectory(FILEDIR);
+            }
+            using (FileStream fs = new FileStream(FILEPATH, FileMode.OpenOrCreate)) {
+                BinaryFormatter bf = new BinaryFormatter();
+                bf.Serialize(fs, Instance);
+            }
+        }
+        /// <summary>
+        /// Выгрузить (десериализовать) данные из файла <seealso cref="FILEPATH"/>
+        /// </summary>
+        public bool Load() {
+            if (File.Exists(FILEPATH)) {
+                try {
+                    using (FileStream fs = new FileStream(FILEPATH, FileMode.Open)) {
+                        BinaryFormatter bf = new BinaryFormatter();
+                        Initialize((SaveManager)bf.Deserialize(fs));
+                    }
+                    return true;
+                } catch (Exception) {
+                    return false;
+                }
+            }
+            return false;
+        }
+        /// <summary>
+        /// Инициализация текущих значений параметрами из сейв-файла. 
+        /// Если в старой версии сейва нет какого-либо свойства, котрое есть в новой версии сейва,
+        /// то этому свойству в новом сейве будет присвоено значение по-умолчанию вместо null.
+        /// Так сделано для обратной совместимости разных версий сейвов.
+        /// </summary>
+        /// <param name="oldSaver">Сохраненный на диске десериализованный файл</param>
+        private void Initialize(SaveManager oldSaver) {
+            try {
+                foreach (object keyName in oldSaver.optionsManager.controlOptions.keyButtons.Keys) {
+                    if (keyName is KeyName) {
+                        KeyName kn = (KeyName)keyName;
+                        optionsManager.controlOptions.keyButtons.Add(kn, oldSaver.optionsManager.controlOptions.keyButtons[kn]);
+                    }
+                }
+            } catch (Exception) { }
+            optionsManager.controlOptions.mouseSensitivityX = oldSaver.optionsManager.controlOptions.mouseSensitivityX;
+            optionsManager.controlOptions.mouseSensitivityY = oldSaver.optionsManager.controlOptions.mouseSensitivityY;
+            optionsManager.graphicsOptions.antialiasing = oldSaver.optionsManager.graphicsOptions.antialiasing;
+            optionsManager.graphicsOptions.isFullscreen = oldSaver.optionsManager.graphicsOptions.isFullscreen;
+            optionsManager.graphicsOptions.resolution = oldSaver.optionsManager.graphicsOptions.resolution;
+            optionsManager.graphicsOptions.textureQuality = oldSaver.optionsManager.graphicsOptions.textureQuality;
+            optionsManager.graphicsOptions.vSync = oldSaver.optionsManager.graphicsOptions.vSync;
+            optionsManager.musicOptions.musicVolume = oldSaver.optionsManager.musicOptions.musicVolume;
+        }
+    }//class
+}//namespace
+
+SceneInformation.cs
+
+using System.Text.RegularExpressions;
+using System.Collections.Generic;
+using UnityEngine.SceneManagement;
+namespace ru.lifanoff {
+    /// <summary>
+    /// Информация о сцене(сценах)
+    /// </summary>
+    public static class SceneInformation {
+        /// <summary>Список активных сцен в меню "File > BuildSettings"</summary>
+        public static List<string> ActiveNames { get; private set; }
+        static SceneInformation() {
+            ActiveNames = new List<string>();
+            MakeActiveNames(); // Сразу назначить в _activeNames назвние всех активных сцен
+        }
+        /// <summary>Составить список активных сцен. Т.е. сцен, которые расположеные в меню "File > BuildSettings"</summary>
+        private static void MakeActiveNames() {
+            int sceneCount = SceneManager.sceneCountInBuildSettings;
+            for (int i = 0; i < sceneCount; i++) {
+                string scenePathName = SceneUtility.GetScenePathByBuildIndex(i);
+                ActiveNames.Add(Regex.Replace(scenePathName, @"^Assets/(.+)\.unity$", @"$1", RegexOptions.IgnoreCase));
+            }
+        }
+        /// <summary>Получить название текущей сцены</summary>
+        public static string GetCurrentSceneName() {
+            return SceneManager.GetActiveScene().name;
+        }
+    }
+}
+
+SecondaryFunctions.cs
+
+using System;
+using UnityEngine;
+namespace ru.lifanoff {
+    /// <summary>
+    /// Вспомогательные функции
+    /// </summary>
+    public class SecondaryFunctions {
+        /// <summary>Получить вектор положения центра экрана</summary>
+        public static Vector2 GetScreenCenter() {
+            int x = Screen.width / 2;
+            int y = Screen.height / 2;
+            return new Vector2(x, y);
+        }
+        /// <summary>Получить основную камеру игрока</summary>
+        public static Camera GetCameraPlayer() {
+            return GameObject.FindWithTag(Unchangeable.CAMERA_PLAYER_TAG).GetComponent<Camera>();
+        }
+        /// <summary>Получить GameObject игрока, расположенного на текущей сцене</summary>
+        public static GameObject GetPlayer() {
+            return GameObject.FindWithTag(Unchangeable.PLAYER_TAG);
+        }
+        /// <summary>Получить HUD игрока, расположенного на текущей сцене</summary>
+        public static GameObject GetPlayerHUD() {
+            return GetPlayerChildGameObject(Unchangeable.PLAYER_HUD_TAG);
+        }
+        /// <summary>Получить игровой объект с текстовым полем для сообщений игроку</summary>
+        public static GameObject GetMessageToPlayer() {
+            return GetPlayerChildGameObject(Unchangeable.MESSAGE_TO_PLAYER_TAG);
+        }
+        /// <summary>Получить дочерний GameObject игрока по тегу goTag</summary>
+        private static GameObject GetPlayerChildGameObject(string goTag) {
+            if (string.IsNullOrWhiteSpace(goTag)) return null;
+            GameObject goPlayer = GetPlayer();
+            if (goPlayer == null) return null;
+            foreach (Transform goTransform in goPlayer.GetComponentsInChildren<Transform>(true)) {
+                if (goTransform.CompareTag(goTag)) {
+                    return goTransform.gameObject;
+                }
+            }
+            return null;
+        }
+        /// <summary>Получить размер перечисления enum</summary>
+        /// <param name="enumType">typeof([__any_enum__])</param>
+        /// <returns>Размер перечисления</returns>
+        public static int GetEnumLenght(Type enumType) {
+            return Enum.GetValues(enumType).Length;
+        }
+    }
+}
+
+SoundController.cs
+
+using UnityEngine;
+namespace ru.lifanoff {
+    /// <summary>
+    /// Управление звуковым сопровождением
+    /// </summary>
+    public class SoundController : MonoBehaviour {
+        [Header("Звуки для сцены Game")]
+        [Tooltip("Фоновый звук ветра")]
+        [SerializeField] private AudioClip gameBackgroundAmbience;
+        [Tooltip("Набор фоновой музыки")]
+        [SerializeField] private AudioClip[] gameBackgroundMusics;
+        [Header("Озвучка игрока")]
+        [Tooltip("Озвучка походки игрока")]
+        [SerializeField] private AudioClip gamePlayerWalkingSound;
+        [Tooltip("Озвучка бега игрока")]
+        [SerializeField] private AudioClip gamePlayerRunningSound;
+        [Tooltip("Звук начала прыжка игрока")]
+        [SerializeField] private AudioClip gamePlayerStartJumpSound;
+        [Tooltip("Набор звуков окончания прыжка игрока")]
+        [SerializeField] private AudioClip[] gamePlayerEndJumpSounds;
+        [Header("Звуки для остальных сцен")]
+        [Tooltip("Фоновая музыка")]
+        [SerializeField] private AudioClip commonBackgroundMusic;
+        /// <summary>Единственный экземпляр класса <seealso cref="SoundController"/></summary>
+        public static SoundController Instance { get; private set; }
+        private SoundController() { }
+        #region Источники звука
+        /// <summary>Источник звука для коротких звуков</summary>
+        private AudioSource oneShotAudioSource;
+        /// <summary>Источник звука для игрока</summary>
+        private AudioSource playerAudioSource;
+        /// <summary>Источник звука для музыки</summary>
+        private AudioSource musicAudioSource;
+        /// <summary>Источник звука для фонового шума</summary>
+        private AudioSource ambianceAudioSource;
+        #endregion
+        /// <summary>Текущая фоновая музыка в игре</summary>
+        private AudioClip currentBackgroundMusic;
+        #region Unity events
+        void Awake() {
+            if (Instance == null) {
+                AddAudioSources();
+                Instance = this;
+            } else if (Instance != this) {
+                Destroy(gameObject);
+            }
+            DontDestroyOnLoad(gameObject);
+            Instance.InitSettings();
+        }
+        void Update() {
+            if (GameController.Instance.currentSceneName == Unchangeable.GAME_SCENE_NAME) {
+                if (Instance.musicAudioSource.clip == commonBackgroundMusic) {
+                    currentBackgroundMusic = gameBackgroundMusics[Random.Range(0, gameBackgroundMusics.Length)];
+                    Instance.StopMusic();
+                    Instance.PlayMusic(currentBackgroundMusic);
+                    Instance.StopAmbiance();
+                    Instance.PlayAmbiance();
+                }
+            } else {
+                if (Instance.musicAudioSource.clip != commonBackgroundMusic) {
+                    Instance.StopAmbiance();
+                    Instance.StopMusic();
+                    Instance.PlayMusic(commonBackgroundMusic);
+                }
+            }
+        }
+        #endregion
+        /// <summary>Добавить в текущий игровой объект источники звуков</summary>
+        private void AddAudioSources() {
+            oneShotAudioSource = gameObject.AddComponent<AudioSource>();
+            playerAudioSource = gameObject.AddComponent<AudioSource>();
+            musicAudioSource = gameObject.AddComponent<AudioSource>();
+            ambianceAudioSource = gameObject.AddComponent<AudioSource>();
+            oneShotAudioSource.playOnAwake = false;
+            playerAudioSource.playOnAwake = false;
+            musicAudioSource.playOnAwake = false;
+            ambianceAudioSource.playOnAwake = false;
+            oneShotAudioSource.loop = false;
+            playerAudioSource.loop = true;
+            musicAudioSource.loop = true;
+            ambianceAudioSource.loop = true;
+            oneShotAudioSource.Stop();
+            playerAudioSource.Stop();
+            musicAudioSource.Stop();
+            ambianceAudioSource.Stop();
+        }
+        /// <summary>Специфические настройки</summary>
+        private void InitSettings() {
+            ChangeVolume(SaveManager.Instance.optionsManager.musicOptions.musicVolume);
+        }
+        /// <summary>Изменить громкость звукового сопровождения</summary>
+        public void ChangeVolume(float volume) {
+            volume = Mathf.Clamp01(volume);
+            oneShotAudioSource.volume = volume;
+            playerAudioSource.volume = volume;
+            musicAudioSource.volume = volume / 2f;
+            ambianceAudioSource.volume = volume;
+        }
+        #region Player Sounds
+        /// <summary>Проиграить звук окончания прыжка игрока</summary>
+        /// <param name="chance">Вероятность проигрывания звука [0, 100]</param>
+        public void PlayStartJumpPlayer(int chance = 100) {
+            StopPlayerAudioSource();
+            if (Random.Range(0, 100) < Mathf.Clamp(chance, 0, 100)) {
+                oneShotAudioSource.PlayOneShot(gamePlayerStartJumpSound);
+            }
+        }
+        /// <summary>Проиграить звук прыжка игрока</summary>
+        public void PlayEndJumpPlayer() {
+            AudioClip audioClip = null;
+            while (audioClip == null) {
+                audioClip = gamePlayerEndJumpSounds[Random.Range(0, gamePlayerEndJumpSounds.Length)];
+            }
+            oneShotAudioSource.PlayOneShot(audioClip);
+        }
+        /// <summary>Проиграить звук идущего игрока</summary>
+        public void PlayWalkingPlayer() {
+            if (playerAudioSource.clip != gamePlayerWalkingSound) {
+                StopPlayerAudioSource();
+                playerAudioSource.clip = gamePlayerWalkingSound;
+                playerAudioSource.Play();
+            }
+        }
+        /// <summary>Проиграить звук бега игрока</summary>
+        public void PlayRuningPlayer() {
+            if (playerAudioSource.clip != gamePlayerRunningSound) {
+                StopPlayerAudioSource();
+                playerAudioSource.clip = gamePlayerRunningSound;
+                playerAudioSource.Play();
+            }
+        }
+        public void StopPlayerAudioSource() {
+            if (playerAudioSource.isPlaying) {
+                playerAudioSource.clip = null;
+                playerAudioSource.Stop();
+            }
+        }
+        #endregion Player Sounds
+        #region Music
+        /// <summary>Включить фоновую музыку</summary>
+        /// <param name="audioClip">Проигрываемая фоновая музыка</param>
+        public void PlayMusic(AudioClip audioClip) {
+            musicAudioSource.clip = audioClip;
+            musicAudioSource.Play();
+        }
+        /// <summary>Остановить музыку</summary>
+        public void StopMusic() {
+            if (musicAudioSource.isPlaying) {
+                musicAudioSource.clip = null;
+                musicAudioSource.Stop();
+            }
+        }
+        #endregion Music
+        #region Ambiance
+        /// <summary>Включить фоновую музыку</summary>
+        /// <param name="audioClip">Проигрываемая фоновая музыка</param>
+        public void PlayAmbiance() {
+            ambianceAudioSource.clip = gameBackgroundAmbience;
+            ambianceAudioSource.Play();
+        }
+        /// <summary>Остановить музыку</summary>
+        public void StopAmbiance() {
+            if (ambianceAudioSource.isPlaying) {
+                ambianceAudioSource.clip = null;
+                ambianceAudioSource.Stop();
+            }
+        }
+        #endregion Ambiance
+    }//class
+}//namespace
+
+Unchangeable.cs
+
+using System.Collections.Generic;
+using UnityEngine;
+namespace ru.lifanoff {
+    /// <summary>
+    /// Статичный класс, содержащий константы
+    /// </summary>
+    public static class Unchangeable {
+        #region Time.timeScale
+        public const float DEFAULT_TIMESCALE = 1f;
+        public const float PAUSE_TIMESCALE = 0f;
+        #endregion
+        #region Tags
+        public const string PLAYER_TAG = "Player";
+        public const string CAMERA_PLAYER_TAG = "PlayerCamera";
+        public const string PLAYER_HUD_TAG = "PlayerHUD";
+        public const string MESSAGE_TO_PLAYER_TAG = "MessageToPlayer";
+        public const string GAME_CONTROLLER_TAG = "GameController";
+        public const string SOUND_CONTROLLER_TAG = "SoundController";
+        public const string MAZE_TAG = "Maze";
+        #endregion
+        #region Layers
+        public const string DEFAULT_LAYER = "Default";
+        public const string UI_LAYER = "UI";
+        public const string DRAW_ALWAYS_LAYER = "Wall";
+        #endregion
+        #region Player
+        public static float DISTANCE_PLAYER_RAYCAST = 2.05f;
+        #endregion
+        #region Scene
+        public const string PRELOADER_SCENE_NAME = "PreLoader";
+        public const string INTRO_SCENE_NAME = "Intro";
+        public const string GAME_SCENE_NAME = "Game";
+        public const string MAIN_MENU_SCENE_NAME = "MainMenu";
+        public const string RESULT_SCENE_NAME = "Result";
+        #endregion
+        #region Chunk
+        /// <summary>Размер обного составного "блока" лабиринта</summary>
+        public const float CHUNK_SIZE = 4f;
+        #endregion
+        #region Input Manager
+        public const string HORIZONTAL_INPUT = "Horizontal";
+        public const string LEFT_RIGHT_INPUT = HORIZONTAL_INPUT;
+        public const string VERTICAL_INPUT = "Vertical";
+        public const string UP_DOWN_INPUT = VERTICAL_INPUT;
+        public const string FIRE2_INPUT = "Fire2";
+        public const string FIRE3_INPUT = "Fire3";
+        public const string JUMP_INPUT = "Jump";
+        public const string MOUSE_X_INPUT = "Mouse X";
+        public const string MOUSE_Y_INPUT = "Mouse Y";
+        public const string MOUSE_SCROLLWHEEL_INPUT = "Mouse ScrollWheel";
+        public const string ENTER_INPUT = "Submit";
+        public const string RETURN_INPUT = ENTER_INPUT;
+        public const string CANCEL_INPUT = "Cancel";
+        public const string ESCAPE_INPUT = CANCEL_INPUT;
+        public const string RUN_INPUT = "Run";
+        public const string USE_INPUT = "Use";
+        #endregion
+    }
+}
+
+Exit\ExitDoorPortal.cs
+
+using UnityEngine;
+using ru.lifanoff.Intarface;
+namespace ru.lifanoff.Exit {
+    /// <summary>
+    /// Скрипт для двери-выхода
+    /// </summary>
+    public class ExitDoorPortal : MonoBehaviour, IUsable {
+        /// <summary>Сообщение для игрока, если он пытается открыть дверь, не имея ключа</summary>
+        private const string NEED_KEY_MESSAGE = "Нужен ключ, чтобы открыть эту дверь.";
+        /// <summary>
+        /// Реакция на попытку игрока открыть дверь
+        /// <para>Реализация метода интерфейса <seealso cref="IUsable"/></para>
+        /// </summary>
+        public void Use() {
+            if (PlayerManager.Instance.hasExitKey) {
+                GameController.Instance.GoToNextScene(Unchangeable.RESULT_SCENE_NAME);
+            } else {
+                PlayerManager.Instance.SendMessageToPlayer(NEED_KEY_MESSAGE);
+            }
+        }
+    }//class
+}//namespace
+
+Exit\ExitKey.cs
+
+using UnityEngine;
+using ru.lifanoff.Intarface;
+namespace ru.lifanoff.Exit {
+    /// <summary>
+    /// Скрипт для ключа от выхода
+    /// </summary>
+    public class ExitKey : MonoBehaviour, IUsable {
+        /// <summary>Сообщение для игрока, если он взял ключ и открыл дверь</summary>
+        private const string DOOR_IS_OPENED_MESSAGE = "Выход открыт!";
+        public void Use() {
+            PlayerManager.Instance.hasExitKey = true;
+            PlayerManager.Instance.SendMessageToPlayer(DOOR_IS_OPENED_MESSAGE);
+            Destroy(gameObject);
+        }
+    }//class
+}//namespace
+
+Interface\IUsable.cs
+
+namespace ru.lifanoff.Intarface {
+    /// <summary>
+    /// Интерфейс для всего, что можно использовать нажатием на ЛКМ.
+    /// </summary>
+    public interface IUsable {
+        void Use();
+    }
+}
+
+Maze\Chunk.cs
+
+namespace ru.lifanoff.Maze {
+    /// <summary>
+    /// Один структурный блок лабиринта
+    /// </summary>
+    public class Chunk {
+        /// <summary>Размер игрового блока</summary>
+        public const float CHUNK_SIZE = Unchangeable.CHUNK_SIZE;
+        /// <summary>Позиция блока в списке по X</summary>
+        public int x { get; private set; }
+        /// <summary>Позиция блока в списке по Y</summary>
+        public int y { get; private set; }
+        /// <param name="posX">Позиция блока в списке по X</param>
+        /// <param name="posY">Позиция блока в списке по Y</param>
+        public Chunk(int posX, int posY) {
+            x = posX;
+            y = posY;
+        }
+        #region Cоседние блоки
+        /// <summary>Соседний блок слева от текущего блока</summary>
+        public Chunk leftChunk = null;
+        /// <summary>Имеет ли текущий блока соседний блок слева</summary>
+        public bool hasLeftChunk {
+            get { return leftChunk != null; }
+        }
+        /// <summary>Соседний блок справа от текущего блока</summary>
+        public Chunk rightChunk = null;
+        /// <summary>Имеет ли текущий блока соседний блок справа</summary>
+        public bool hasRightChunk {
+            get { return rightChunk != null; }
+        }
+        /// <summary>Соседний блок сверху от текущего блока</summary>
+        public Chunk topChunk = null;
+        /// <summary>Имеет ли текущий блока соседний блок сверху</summary>
+        public bool hasTopChunk {
+            get { return topChunk != null; }
+        }
+        /// <summary>Соседний блок снизу от текущего блока</summary>
+        public Chunk bottomChunk = null;
+        /// <summary>Имеет ли текущий блока соседний блок снизу</summary>
+        public bool hasBottomChunk {
+            get { return bottomChunk != null; }
+        }
+        #endregion
+        #region Стены в блоке
+        /// <summary>Левая стена блока</summary>
+        public Wall leftWall = null;
+        /// <summary>Имеет ли текущий блока стену слева</summary>
+        public bool hasLeftWall {
+            get { return leftWall != null; }
+        }
+        /// <summary>Правая стена блока</summary>
+        public Wall rightWall = null;
+        /// <summary>Имеет ли текущий блока стену справа</summary>
+        public bool hasRightWall {
+            get { return rightWall != null; }
+        }
+        /// <summary>Верхняя стена блока</summary>
+        public Wall topWall = null;
+        /// <summary>Имеет ли текущий блока стену сверху</summary>
+        public bool hasTopWall {
+            get { return topWall != null; }
+        }
+        /// <summary>Нижняя стена блока</summary>
+        public Wall bottomWall = null;
+        /// <summary>Имеет ли текущий блока стену нижнюю</summary>
+        public bool hasBottomWall {
+            get { return bottomWall != null; }
+        }
+        #endregion
+        /// <summary>Счетчик количества стен в блоке</summary>
+        public int wallCounter {
+            get {
+                int counter = 0;
+                if (hasLeftWall) counter++;
+                if (hasRightWall) counter++;
+                if (hasTopWall) counter++;
+                if (hasBottomWall) counter++;
+                return counter;
+            }
+        }
+        /// <summary>У блока есть все стены</summary>
+        public bool hasAllWalls {
+            get {
+                return hasLeftWall && hasRightWall && hasTopWall && hasBottomWall;
+            }
+        }
+        /// <summary>У блока есть хотя бы одна стена</summary>
+        public bool hasAnyWalls {
+            get {
+                return !hasNoOneWalls;
+            }
+        }
+        /// <summary>У блока нет ни одной стены</summary>
+        public bool hasNoOneWalls {
+            get {
+                return !hasLeftWall && !hasRightWall && !hasTopWall && !hasBottomWall;
+            }
+        }
+        /// <summary>У текущего блока есть все соседние блоки</summary>
+        public bool hasAllChunks {
+            get {
+                return hasLeftChunk && hasRightChunk && hasTopChunk && hasBottomChunk;
+            }
+        }
+        /// <summary>У текущего блока есть хотя бы один соседний блок</summary>
+        public bool hasAnyChunks {
+            get {
+                return !hasNoOneBlocks;
+            }
+        }
+        /// <summary>У блока нет ни одного соседнего блока</summary>
+        public bool hasNoOneBlocks {
+            get {
+                return !hasLeftChunk && !hasRightChunk && !hasTopChunk && !hasBottomChunk;
+            }
+        }
+        /// <summary>Расположен ли в блоке ключ от выхода</summary>
+        public bool hasExitKey = false;
+        /// <summary>Метка для использования в алгоритмах.</summary>
+        public bool isChecked = false;
+    }//class
+}//namespace
+
+Maze\Maze.cs
+
+using UnityEngine;
+namespace ru.lifanoff.Maze {
+    /// <summary>
+    /// Скрипт, визуализирующий лабиринт
+    /// </summary>
+    [RequireComponent(typeof(MazePrefabContainer))]
+    public class Maze : MonoBehaviour {
+        /// <summary>Размер игрового блока</summary>
+        private float chunkSize;
+        /// <summary>Объект игрока на сцене</summary>
+        private GameObject currentPlayer;
+        /// <summary>Сгенерированный лабиринт</summary>
+        private MazeGenerate mazeStructure;
+        /// <summary>Коллайдер для пола</summary>
+        private BoxCollider floorBoxCollider;
+        /// <summary></summary>
+        private MazePrefabContainer mazePrefabContainer;
+        #region Unity Events
+        void Start() {
+            // Сгенерировать лабиринт случайного размера
+            int minSizeMaze = GameController.Instance.getMinSizeMaze;
+            int maxSizeMaze = GameController.Instance.getMinSizeMaze;
+            int mazeSizeX = Random.Range(minSizeMaze, maxSizeMaze);
+            int mazeSizeY = Random.Range(minSizeMaze, maxSizeMaze);
+            mazeStructure = new MazeGenerate(mazeSizeX, mazeSizeY);
+            chunkSize = Chunk.CHUNK_SIZE;
+            mazePrefabContainer = GetComponent<MazePrefabContainer>();
+            currentPlayer = SecondaryFunctions.GetPlayer();
+            PlayerManager.Instance.hasExitKey = false;
+            PlayerManager.Instance.canMoving = true;
+            PlacePrefabsOnScene();
+            AppendColliderFloor();
+            RandomPlayerPosition();
+        }
+        #endregion
+        /// <summary>Разместить префабы на сцене</summary>
+        private void PlacePrefabsOnScene() {
+            foreach (Chunk chunk in mazeStructure) {
+                PlaceWalls(chunk);
+                PlaceFloors(chunk);
+                PlaceExitKey(chunk);
+            }
+        }
+        #region PlaceWalls
+        /// <summary>Разместить префабы стен</summary>
+        /// <param name="chunk">Текущий блок лабиринта</param>
+        private void PlaceWalls(Chunk chunk) {
+            if (chunk.hasLeftWall) PlaceLeftWalls(chunk);
+            if (chunk.hasRightWall) PlaceRightWalls(chunk);
+            if (chunk.hasTopWall) PlaceTopWalls(chunk);
+            if (chunk.hasBottomWall) PlaceBottomWalls(chunk);
+        }
+        /// <summary>Разместить префаб левой стены</summary>
+        /// <param name="chunk">Текущий блок лабиринта</param>
+        private void PlaceLeftWalls(Chunk chunk) {
+            Vector3 newPosition = Vector3.zero;
+            newPosition.x = chunk.x * chunkSize + chunkSize / 2f;
+            newPosition.z = chunk.y * chunkSize - chunkSize / 2f;
+            Vector3 newRotation = Vector3.zero;
+            GameObject gameObjectWall = PlaceAnyWalls(newPosition, Quaternion.Euler(newRotation));
+            if (chunk.leftWall.hasExit) InsertExitDoor(gameObjectWall);
+        }
+        /// <summary>Разместить префаб правой стены</summary>
+        /// <param name="chunk">Текущий блок лабиринта</param>
+        private void PlaceRightWalls(Chunk chunk) {
+            Vector3 newPosition = Vector3.zero;
+            newPosition.x = chunk.x * chunkSize + chunkSize / 2f;
+            newPosition.z = chunk.y * chunkSize + chunkSize / 2f;
+            Vector3 newRotation = Vector3.zero;
+            newRotation.y = 180f;
+            GameObject gameObjectWall = PlaceAnyWalls(newPosition, Quaternion.Euler(newRotation));
+            if (chunk.rightWall.hasExit) InsertExitDoor(gameObjectWall);
+        }
+        /// <summary>Разместить префаб верхней стены</summary>
+        /// <param name="chunk">Текущий блок лабиринта</param>
+        private void PlaceTopWalls(Chunk chunk) {
+            Vector3 newPosition = Vector3.zero;
+            newPosition.x = chunk.x * chunkSize;
+            newPosition.z = chunk.y * chunkSize;
+            Vector3 newRotation = Vector3.zero;
+            newRotation.y = 90f;
+            GameObject gameObjectWall = PlaceAnyWalls(newPosition, Quaternion.Euler(newRotation));
+            if (chunk.topWall.hasExit) InsertExitDoor(gameObjectWall);
+        }
+        /// <summary>Разместить префаб нижней стены</summary>
+        /// <param name="chunk">Текущий блок лабиринта</param>
+        private void PlaceBottomWalls(Chunk chunk) {
+            Vector3 newPosition = Vector3.zero;
+            newPosition.x = chunk.x * chunkSize + chunkSize;
+            newPosition.z = chunk.y * chunkSize;
+            Vector3 newRotation = Vector3.zero;
+            newRotation.y = -90f;
+            GameObject gameObjectWall = PlaceAnyWalls(newPosition, Quaternion.Euler(newRotation));
+            if (chunk.bottomWall.hasExit) InsertExitDoor(gameObjectWall);
+        }
+        /// <summary>Разместить префаб любой стены</summary>
+        /// <param name="wallPosition">Место расположения на поле</param>
+        /// <param name="wallRotation">Угол разворота</param>
+        /// <returns>Возвращает размещенный на сцене объект стены</returns>
+        private GameObject PlaceAnyWalls(Vector3 wallPosition, Quaternion wallRotation) {
+            MazePrefabID mazePrefabID = MazePrefabID.WALL;
+            int numnberRandomPrefab = mazePrefabContainer.GetRandomNumberPrefab(mazePrefabID);
+            GameObject cloningPrefab = mazePrefabContainer.prefabs[mazePrefabID][numnberRandomPrefab];
+            GameObject gameObjectWall = Instantiate(cloningPrefab, transform) as GameObject;
+            gameObjectWall.transform.position = wallPosition;
+            gameObjectWall.transform.rotation = wallRotation;
+            gameObjectWall.SetActive(true);
+            return gameObjectWall;
+        }
+        /// <summary>Вставить дверь в объект <paramref name="anyGameObject"/></summary>
+        /// <param name="anyGameObject">Объект, в котоый будет помещена дверь</param>
+        private void InsertExitDoor(GameObject anyGameObject) {
+            MazePrefabID mazePrefabID = MazePrefabID.EXIT_DOOR;
+            int numnberRandomPrefab = mazePrefabContainer.GetRandomNumberPrefab(mazePrefabID);
+            GameObject cloningPrefab = mazePrefabContainer.prefabs[mazePrefabID][numnberRandomPrefab];
+            GameObject gameObjectExitDoor = Instantiate(cloningPrefab, anyGameObject.transform) as GameObject;
+            gameObjectExitDoor.SetActive(true);
+        }
+        #endregion PlaceWalls
+        /// <summary>Разместить префабы пола</summary>
+        /// <param name="chunk">Текущий блок лабиринта</param>
+        private void PlaceFloors(Chunk chunk) {
+            MazePrefabID mazePrefabID = MazePrefabID.FLOOR;
+            int numnberRandomPrefab = mazePrefabContainer.GetRandomNumberPrefab(mazePrefabID);
+            GameObject cloningPrefab = mazePrefabContainer.prefabs[mazePrefabID][numnberRandomPrefab];
+            GameObject gameObjectFloor = Instantiate(cloningPrefab, transform) as GameObject;
+            Vector3 newPosition = Vector3.zero;
+            newPosition.x = chunk.x * chunkSize + chunkSize / 2f;
+            newPosition.z = chunk.y * chunkSize;
+            gameObjectFloor.transform.position = newPosition;
+            gameObjectFloor.SetActive(true);
+        }
+        /// <summary>Разместить префабы пола</summary>
+        /// <param name="chunk">Текущий блок лабиринта</param>
+        private void PlaceExitKey(Chunk chunk) {
+            if (!chunk.hasExitKey) return;
+            MazePrefabID mazePrefabID = MazePrefabID.EXIT_KEY;
+            int numnberRandomPrefab = mazePrefabContainer.GetRandomNumberPrefab(mazePrefabID);
+            GameObject cloningPrefab = mazePrefabContainer.prefabs[mazePrefabID][numnberRandomPrefab];
+            GameObject gameObjectExitKey = Instantiate(cloningPrefab, transform) as GameObject;
+            Vector3 newPosition = Vector3.zero;
+            newPosition.x = chunk.x * chunkSize + chunkSize / 2f;
+            newPosition.z = chunk.y * chunkSize;
+            gameObjectExitKey.transform.position = newPosition;
+            // Развернуть стенд с ключем в сторону отсутствующей стены
+            Vector3 newRotation = Vector3.zero;
+            newRotation.x = gameObjectExitKey.transform.eulerAngles.x;
+            newRotation.y = gameObjectExitKey.transform.eulerAngles.y;
+            newRotation.z = gameObjectExitKey.transform.eulerAngles.z;
+            if (!chunk.hasRightWall) {
+                newRotation.y -= 90f;
+            } else if (!chunk.hasLeftWall) {
+                newRotation.y += 90f;
+            } else if (!chunk.hasTopWall) {
+                newRotation.y += 180f;
+            } // в остальных случаях newRotation.y остается прежним
+            gameObjectExitKey.transform.eulerAngles = newRotation;
+            gameObjectExitKey.SetActive(true);
+        }
+        /// <summary>Добавить и настроить общий коллайдер для всех полов лабиринта</summary>
+        private void AppendColliderFloor() {
+            floorBoxCollider = this.gameObject.AddComponent<BoxCollider>();
+            Vector3 newSize = Vector3.zero;
+            newSize.x = mazeStructure.sizeX * chunkSize;
+            newSize.y = .05f;
+            newSize.z = mazeStructure.sizeY * chunkSize;
+            Vector3 newCenter = Vector3.zero;
+            newCenter.x = newSize.x / 2f;
+            newCenter.y = -0.025f;
+            newCenter.z = (newSize.z / 2f) - (chunkSize / 2f);
+            floorBoxCollider.isTrigger = false;
+            floorBoxCollider.size = newSize;
+            floorBoxCollider.center = newCenter;
+            floorBoxCollider.enabled = true;
+        }
+        /// <summary>Разместить игрока в центре случайного блока</summary>
+        private void RandomPlayerPosition() {
+            Chunk chunk = null;
+            // Исключить возможность появления игрока в одном блоке с ключем от выхода
+            while (chunk == null || chunk.hasExitKey) {
+                chunk = mazeStructure.GetRandomChunk();
+            }
+            Vector3 newPosition = Vector3.zero;
+            newPosition.x = (chunk.x * chunkSize) + (chunkSize / 2f);
+            newPosition.y = currentPlayer.transform.position.y + .5f;
+            newPosition.z = chunk.y * chunkSize;
+            currentPlayer.transform.position = newPosition;
+            // Развернуть игрока в сторону, где нет стены
+            Vector3 newRotation = Vector3.zero;
+            newRotation.x = currentPlayer.transform.rotation.x;
+            newRotation.z = currentPlayer.transform.rotation.z;
+            if (!chunk.hasRightWall) {
+                newRotation.y = 0f;
+            } else if (!chunk.hasBottomWall) {
+                newRotation.y = 90f;
+            } else if (!chunk.hasLeftWall) {
+                newRotation.y = 180f;
+            } else if (!chunk.hasTopWall) {
+                newRotation.y = -90;
+            } else { // Оставить прежний разворот
+                newRotation.y = currentPlayer.transform.rotation.y;
+            }
+            currentPlayer.transform.rotation = Quaternion.Euler(newRotation);
+        }
+    }//class
+}//namespace
+
+Maze\MazeGenerate.cs
+
+using System;
+using System.Linq;
+using System.Collections;
+using System.Collections.Generic;
+namespace ru.lifanoff.Maze {
+    /// <summary>
+    /// Скрипт, генерирующий лабиринт
+    /// </summary>
+    public sealed class MazeGenerate : IEnumerable, IEnumerator {
+        /// <summary>Статичная переменная для операций, использующих случайное значение</summary>
+        private static Random rnd = new Random();
+        /// <summary>Размер лабиринта по оси X (количество блоков по оси X)</summary>
+        public int sizeX { get; private set; }
+        /// <summary>Размер лабиринта по оси Y (количество блоков по оси Y)</summary>
+        public int sizeY { get; private set; }
+        /// <summary>Структура лабиринта</summary>
+        private List<List<Chunk>> maze;
+        /// <summary>Получить доступ к элементу из списка блоков</summary>
+        /// <param name="x">Положение блока по X</param>
+        /// <param name="y">Положение блока по Y</param>
+        /// <returns>Объект класса Chunk</returns>
+        public Chunk this[int x, int y] {
+            get {
+                try {
+                    return maze[x][y];
+                } catch (ArgumentException) {
+                    return null;
+                }
+            }
+            private set {
+                try {
+                    maze[x][y] = value;
+                } catch (ArgumentException) { }
+            }
+        }
+        /// <summary>Стена, которая содержит выход с уровня</summary>
+        public Wall exitWall { get; private set; }
+        /// <summary>Есть ли выход с уровня</summary>
+        public bool hasExit {
+            get { return exitWall != null; }
+        }
+        /// <summary>Блок, который содержит ключ от выхода с уровня</summary>
+        public Chunk exitKeyChunk { get; private set; }
+        /// <summary>Есть ли ключ от выхода с уровня</summary>
+        public bool hasExitKey {
+            get { return exitKeyChunk != null; }
+        }
+        /// <param name="x">Размер лабиринта по оси X (количество блоков по оси X)</param>
+        /// <param name="y">Размер лабиринта по оси Y (количество блоков по оси Y)</param>
+        public MazeGenerate(int x, int y) {
+            sizeX = x;
+            sizeY = y;
+            maze = new List<List<Chunk>>();
+            Generate();
+        }
+        #region реалирация методов интерфейсов IEnumerable и IEnumerator
+        private int enumeratorIndexX = 0;
+        private int enumeratorIndexY = -1;
+        public IEnumerator GetEnumerator() {
+            return this;
+        }
+        public object Current {
+            get { return this[enumeratorIndexX, enumeratorIndexY]; }
+        }
+        public bool MoveNext() {
+            enumeratorIndexY++;
+            if (enumeratorIndexY >= sizeY) {
+                enumeratorIndexX++;
+                enumeratorIndexY = 0;
+            }
+            if (enumeratorIndexX >= sizeX) {
+                Reset();
+                return false;
+            }
+            return true;
+        }
+        public void Reset() {
+            enumeratorIndexX = 0;
+            enumeratorIndexY = -1;
+        }
+        #endregion IEnumerable, IEnumerator
+        /// <summary>Генерация лабиринта</summary>
+        private void Generate() {
+            FillMaze();
+            AssignNeighborChunks();
+            AssignWallsChunks();
+            MakeMaze();
+            AddExit();
+            AddExitKey();
+        }
+        /// <summary>Заполнить <seealso cref="maze"/></summary>
+        private void FillMaze() {
+            for (int x = 0; x < sizeX; x++) {
+                maze.Add(new List<Chunk>());
+                for (int y = 0; y < sizeY; y++) {
+                    maze.Last().Add(new Chunk(x, y));
+                }
+            }
+        }
+        /// <summary>Назначить соседние блоки</summary>
+        private void AssignNeighborChunks() {
+            foreach (Chunk chunk in this) {
+                chunk.leftChunk = this[chunk.x, chunk.y - 1];
+                chunk.rightChunk = this[chunk.x, chunk.y + 1];
+                chunk.topChunk = this[chunk.x - 1, chunk.y];
+                chunk.bottomChunk = this[chunk.x + 1, chunk.y];
+            }
+        }
+        /// <summary>Установить стены во все блоки</summary>
+        private void AssignWallsChunks() {
+            foreach (Chunk chunk in this) {
+                chunk.leftWall = new Wall(Side.LEFT, chunk);
+                chunk.rightWall = new Wall(Side.RIGHT, chunk);
+                chunk.topWall = new Wall(Side.TOP, chunk);
+                chunk.bottomWall = new Wall(Side.BOTTOM, chunk);
+            }
+        }
+        #region MakeMaze
+        /// <summary>Составить лабиринт</summary>
+        private void MakeMaze() {
+            HuntAndKill(GetRandomChunk());
+            ResetChunkIsChecked();
+        }
+        #region HuntAndKill
+        /// <summary>Генерация лабиринта по алгоритму Hunt-and-Kill</summary>
+        /// <param name="currentChunk">Блок, с которого алгоритм начинает работать</param>
+        private void HuntAndKill(Chunk currentChunk) {
+            while (true) {
+                Walk_HuntAndKill(ref currentChunk);
+                Hunt_HuntAndKill(ref currentChunk);
+                if (currentChunk == null) break;
+            }
+        }
+        /// <summary>
+        /// Пройтись по списку убирая стены между текущим блоком и соседним непосещенным блоком.
+        /// </summary>
+        /// <param name="currentChunk">Текущий стартовый блок</param>
+        private void Walk_HuntAndKill(ref Chunk currentChunk) {
+            currentChunk.isChecked = true;
+            Walk_RemoveRandomWall(ref currentChunk);
+        }
+        /// <summary>
+        /// "Отловить" непосещенный блок, у которого есть соседний посещенный блок.
+        /// Убрать стены между текущим блоком и соседним посещенным блоком.
+        /// Если непосещенные блоки не найдены, то алгоритм завершен.
+        /// </summary>
+        /// <param name="currentChunk">Текущий стартовый блок</param>
+        private void Hunt_HuntAndKill(ref Chunk currentChunk) {
+            if (currentChunk != null) return;
+            foreach (Chunk chunk in this) {
+                if (!chunk.isChecked) {
+                    if ((chunk.hasLeftChunk && chunk.leftChunk.isChecked) ||
+                        (chunk.hasRightChunk && chunk.rightChunk.isChecked) ||
+                        (chunk.hasTopChunk && chunk.topChunk.isChecked) ||
+                        (chunk.hasBottomChunk && chunk.bottomChunk.isChecked)) {
+                        currentChunk = chunk;
+                        currentChunk.isChecked = true;
+                        Hunt_RemoveRandomWall(ref currentChunk);
+                        this.Reset();
+                        break;
+                    }
+                }
+            }//hcaerof
+        }
+        /// <summary>Убрать стену между текущим блоком и случайным непосещенным соседним блоком.</summary>
+        /// <remarks>Используется только в методе <seealso cref="Walk_HuntAndKill"/></remarks>
+        /// <param name="currentChunk">Текущий стартовый блок</param>
+        private void Walk_RemoveRandomWall(ref Chunk currentChunk) {
+            // Список имеющихся соседних блоков, между которыми можно убрать стены
+            List<Side> sides = new List<Side>();
+            if (currentChunk.hasLeftChunk && !currentChunk.leftChunk.isChecked) sides.Add(Side.LEFT);
+            if (currentChunk.hasRightChunk && !currentChunk.rightChunk.isChecked) sides.Add(Side.RIGHT);
+            if (currentChunk.hasTopChunk && !currentChunk.topChunk.isChecked) sides.Add(Side.TOP);
+            if (currentChunk.hasBottomChunk && !currentChunk.bottomChunk.isChecked) sides.Add(Side.BOTTOM);
+            if (sides.Count == 0) {
+                currentChunk = null;
+                return;
+            }
+            currentChunk = RemoveWall(currentChunk, sides[rnd.Next(sides.Count)]);
+        }
+        /// <summary>Убрать стену между текущим блоком и случайным посещенным соседним блоком.</summary>
+        /// <remarks>Используется только в методе <seealso cref="Hunt_HuntAndKill"/></remarks>
+        /// <param name="currentChunk">Текущий стартовый блок</param>
+        private void Hunt_RemoveRandomWall(ref Chunk currentChunk) {
+            // Список имеющихся соседних блоков, между которыми можно убрать стены
+            List<Side> sides = new List<Side>();
+            if (currentChunk.hasLeftChunk && currentChunk.leftChunk.isChecked) sides.Add(Side.LEFT);
+            if (currentChunk.hasRightChunk && currentChunk.rightChunk.isChecked) sides.Add(Side.RIGHT);
+            if (currentChunk.hasTopChunk && currentChunk.topChunk.isChecked) sides.Add(Side.TOP);
+            if (currentChunk.hasBottomChunk && currentChunk.bottomChunk.isChecked) sides.Add(Side.BOTTOM);
+            if (sides.Count == 0) {
+                return;
+            }
+            currentChunk = RemoveWall(currentChunk, sides[rnd.Next(sides.Count)]);
+        }
+        /// <summary>
+        /// Удалить стену в указанном блоке <paramref name="currentChunk"/>
+        /// и вернуть соседний блок, в котором тоже была удалена стена
+        /// </summary>
+        /// <param name="currentChunk">Блок, в котором будет удалена стена</param>
+        /// <param name="side">Сторона, с которой будет удалена стена</param>
+        /// <returns>
+        /// Соседний блок относительно блока <paramref name="currentChunk"/>, 
+        /// в котором была удалена стена
+        /// </returns>
+        private Chunk RemoveWall(Chunk currentChunk, Side side) {
+            Chunk newCurrentChunk = null;
+            switch (side) {
+                // Убрать стену между текущим блоком и блоком с выбранной стороны,
+                // а также, назначить выбранный блок текущим.
+                case Side.LEFT:
+                    currentChunk.leftWall = null;
+                    currentChunk.leftChunk.rightWall = null;
+                    newCurrentChunk = currentChunk.leftChunk;
+                    break;
+                case Side.RIGHT:
+                    currentChunk.rightWall = null;
+                    currentChunk.rightChunk.leftWall = null;
+                    newCurrentChunk = currentChunk.rightChunk;
+                    break;
+                case Side.TOP:
+                    currentChunk.topWall = null;
+                    currentChunk.topChunk.bottomWall = null;
+                    newCurrentChunk = currentChunk.topChunk;
+                    break;
+                case Side.BOTTOM:
+                    currentChunk.bottomWall = null;
+                    currentChunk.bottomChunk.topWall = null;
+                    newCurrentChunk = currentChunk.bottomChunk;
+                    break;
+            }
+            return newCurrentChunk;
+        }
+        #endregion HuntAndKill
+        #endregion MakeMaze
+        #region AddExit
+        /// <summary>Добавить выход в одну из крайних стен</summary>
+        private void AddExit() {
+            if (hasExit) return;
+            List<Wall> outerWalls = FindOuterWalls();
+            exitWall = outerWalls[rnd.Next(outerWalls.Count)];
+            exitWall.hasExit = true;
+        }
+        /// <summary>Найти все внешние стены</summary>
+        /// <returns>Список, в который будут сохранены найденные стены</returns>
+        private List<Wall> FindOuterWalls() {
+            List<Wall> outerWalls = new List<Wall>();
+            foreach (Chunk chunk in this) {
+                if (chunk.x == 0 || chunk.y == 0) {
+                    if (!chunk.hasLeftChunk && chunk.hasLeftWall) outerWalls.Add(chunk.leftWall);
+                    if (!chunk.hasRightChunk && chunk.hasRightWall) outerWalls.Add(chunk.rightWall);
+                    if (!chunk.hasTopChunk && chunk.hasTopWall) outerWalls.Add(chunk.topWall);
+                    if (!chunk.hasBottomChunk && chunk.hasBottomWall) outerWalls.Add(chunk.bottomWall);
+                }
+            }//hcaerof
+            return outerWalls;
+        }
+        #endregion AddExit
+        #region AddExitKey
+        /// <summary>Добавить ключ в самый дальний блок относительно блока с выходом</summary>
+        private void AddExitKey() {
+            if (hasExitKey) return;
+            List<Chunk> farthestChunks = FindFarthestChunksFromExit();
+            exitKeyChunk = farthestChunks[rnd.Next(farthestChunks.Count)];
+            exitKeyChunk.hasExitKey = true;
+        }
+        /// <summary>Найти все самые дальние блоки относительно блока с выходом</summary>
+        /// <returns>Список, в который будут сохранены найденные блоки</returns>
+        private List<Chunk> FindFarthestChunksFromExit() {
+            List<List<Chunk>> chunkPaths = MakeListPaths(exitWall.chunk);
+            ResetChunkIsChecked();
+            return GetFarthestChunksFromListPaths(chunkPaths);
+        }
+        /// <summary>Составить список путей</summary>
+        /// <param name="startChunk">Стартовый блок</param>
+        /// <param name="chunkPaths">Список, в который созранятся пути</param>
+        /// <returns>Список путей</returns>
+        private List<List<Chunk>> MakeListPaths(Chunk startChunk) {
+            List<List<Chunk>> pathsChunks = new List<List<Chunk>>() { new List<Chunk>() { startChunk } };
+            Queue<List<Chunk>> fifoStackChunks = new Queue<List<Chunk>>();
+            fifoStackChunks.Enqueue(new List<Chunk>() { startChunk });
+            while (fifoStackChunks.Count > 0) {
+                List<Chunk> currentChunks = fifoStackChunks.Dequeue().ToList();
+                Chunk lastChunk = currentChunks.Last();
+                if (lastChunk.isChecked) {
+                    continue;
+                } else {
+                    lastChunk.isChecked = true;
+                }//fi
+                List<Chunk> neighboringUncheckedChunks = FindNeighboringUncheckedChunks(lastChunk);
+                foreach (Chunk neighboringChunk in neighboringUncheckedChunks) {
+                    currentChunks.Add(neighboringChunk);
+                    pathsChunks.Add(currentChunks);
+                    fifoStackChunks.Enqueue(currentChunks.ToList());
+                }//hcaerof
+            }//elihw
+            return pathsChunks;
+        }
+        /// <summary>Добавить непосещенные соседние блоки, между которыми нет стены</summary>
+        /// <param name="currentChunk">Блок, относительно которого ведется поиск</param>
+        /// <returns>Список сосеждних блоков относительно блока <paramref name="currentChunk"/></returns>
+        private List<Chunk> FindNeighboringUncheckedChunks(Chunk currentChunk) {
+            List<Chunk> neighboringUncheckedChunks = new List<Chunk>();
+            if (!currentChunk.hasLeftWall &&
+                currentChunk.hasLeftChunk &&
+                !currentChunk.leftChunk.isChecked) {
+                neighboringUncheckedChunks.Add(currentChunk.leftChunk);
+            }//if left
+            if (!currentChunk.hasRightWall &&
+                currentChunk.hasRightChunk &&
+                !currentChunk.rightChunk.isChecked) {
+                neighboringUncheckedChunks.Add(currentChunk.rightChunk);
+            }//if right
+            if (!currentChunk.hasTopWall &&
+                currentChunk.hasTopChunk &&
+                !currentChunk.topChunk.isChecked) {
+                neighboringUncheckedChunks.Add(currentChunk.topChunk);
+            }//if top
+            if (!currentChunk.hasBottomWall &&
+                currentChunk.hasBottomChunk &&
+                !currentChunk.bottomChunk.isChecked) {
+                neighboringUncheckedChunks.Add(currentChunk.bottomChunk);
+            }//if bottom
+            return neighboringUncheckedChunks;
+        }
+        /// <summary>Получить дальние блоки из списка путей</summary>
+        /// <param name="chunkPaths">Список путей</param>
+        /// <returns>Список дальних блоков</returns>
+        private List<Chunk> GetFarthestChunksFromListPaths(List<List<Chunk>> chunkPaths) {
+            List<Chunk> farthestChunks = chunkPaths.GroupBy(c => c.Count).
+                                                    OrderByDescending(g => g.Key).First().
+                                                    Select(f => f.Last()).ToList();
+            return farthestChunks;
+        }
+        #endregion AddExitKey
+        /// <summary>Получить случайный блок из списка</summary>
+        public Chunk GetRandomChunk() {
+            int x = rnd.Next(sizeX);
+            int y = rnd.Next(sizeY);
+            return this[x, y];
+        }
+        #region Chunk.isChecked
+        /// <summary>Сбросить <seealso cref="Chunk.isChecked"/> во всех блоках текущего объекта</summary>
+        public void ResetChunkIsChecked() {
+            ChunkIsChecked(false);
+        }
+        /// <summary>
+        /// Изменить <seealso cref="Chunk.isChecked"/> во всех блоках текущего объекта,
+        /// в соответствии с параметром <paramref name="isChecked"/>.
+        /// </summary>
+        /// <param name="isChecked">новое значение для всех <seealso cref="Chunk.isChecked"/></param>
+        private void ChunkIsChecked(bool isChecked) {
+            foreach (Chunk chunk in this) {
+                chunk.isChecked = isChecked;
+            }
+        }
+        #endregion Chunk.isChecked
+    }//class
+}//namespace
+
+Maze\MazePrefabContainer.cs
+
+using System.Linq;
+using System.Collections.Generic;
+using UnityEngine;
+namespace ru.lifanoff.Maze {
+    /// <summary>
+    /// Хранилище префабов дверей, стен, и т.д., из которых будет состоять лабиринт
+    /// </summary>
+    [RequireComponent(typeof(Maze))]
+    public class MazePrefabContainer : MonoBehaviour {
+        /// <summary>Список префабов в инспекторе</summary>
+        [ContextMenuItem("Сортировать по Id, а затем по имени префаба", "SortByPrefabIdThenByName")]
+        [ContextMenuItem("Удалить элементы без префаба", "RemoveItemWithoutPrefab")]
+        [SerializeField]
+        private MazePrefabItem[] prefabsInspector =
+                            new MazePrefabItem[SecondaryFunctions.GetEnumLenght(typeof(MazePrefabID))];
+        /// <summary>Список префабов в инспекторе преобразованный в словарь</summary>
+        public Dictionary<MazePrefabID, List<GameObject>> prefabs { get; private set; }
+        #region Unity events
+        void Awake() {
+            prefabs = new Dictionary<MazePrefabID, List<GameObject>>();
+            UpdateDictionary();
+        }
+        #endregion
+        /// <summary>Обновить <seealso cref="prefabs"/></summary>
+        private void UpdateDictionary() {
+            foreach (MazePrefabItem prefItem in prefabsInspector) {
+                if (prefabs.ContainsKey(prefItem.id)) {
+                    if (prefabs[prefItem.id] == null) {
+                        prefabs[prefItem.id] = new List<GameObject>();
+                    }
+                    prefabs[prefItem.id].Add(prefItem.prefab);
+                } else {
+                    prefabs.Add(prefItem.id, new List<GameObject>() { prefItem.prefab });
+                }
+            }
+        }
+        /// <summary>Получить случайный префаб по заданному id</summary>
+        public GameObject GetRandomPrefab(MazePrefabID mazePrefabID) {
+            if (prefabs[mazePrefabID].Count == 0) return null;
+            return prefabs[mazePrefabID][GetRandomNumberPrefab(mazePrefabID)];
+        }
+        /// <summary>Получить случайный номер префаба в списке по заданному id</summary>
+        public int GetRandomNumberPrefab(MazePrefabID mazePrefabID) {
+            return Random.Range(0, prefabs[mazePrefabID].Count);
+        }
+        #region Функции для панели Inspector
+        /// <summary>Сортировать в инспекторе список сначала по Id затем по имени префаба</summary>
+        private void SortByPrefabIdThenByName() {
+            try {
+                prefabsInspector = prefabsInspector.OrderBy(x => x.id).ThenBy(x => x.prefab.name).ToArray();
+            } catch (System.Exception) { }
+        }
+        /// <summary>Удалить элементы массива MazePrefabItem[], который не содержит префаб</summary>
+        private void RemoveItemWithoutPrefab() {
+            try {
+                prefabsInspector = prefabsInspector.Where(x => x.prefab != null).ToArray();
+            } catch (System.Exception) { }
+        }
+        #endregion Inspector
+    }//class
+}//namespace
+
+Maze\MazePrefabID.cs
+
+namespace ru.lifanoff.Maze {
+    /// <summary>
+    /// Имена для префабов в MazePrefabContainer.
+    /// </summary>
+	public enum MazePrefabID {
+        /// <summary>ID для префабов дверей</summary>
+        EXIT_DOOR,
+        /// <summary>ID для префабов ключей от выхода</summary>
+        EXIT_KEY,
+        /// <summary>ID для префабов полов</summary>
+        FLOOR,
+        /// <summary>ID для префабов стен</summary>
+        WALL
+    }
+}
+
+Maze\MazePrefabItem.cs
+
+using System;
+using UnityEngine;
+namespace ru.lifanoff.Maze {
+    /// <summary>
+    /// Класс, описывающий единицу префаба
+    /// </summary>
+    [Serializable] // Serializable - чтобы можно было настроить через inspector
+    public class MazePrefabItem {
+        /// <summary>id префаба</summary>
+        public MazePrefabID id;
+        /// <summary>GameObject соответствующий описанию в id</summary>
+        public GameObject prefab;
+    }//class
+}//namespace
+
+Maze\Side.cs
+
+namespace ru.lifanoff.Maze {
+    /// <summary>
+    /// Перечисление для назанчения сторон стен для лабиринта
+    /// </summary>
+	public enum Side {
+        TOP, RIGHT, BOTTOM, LEFT
+    }
+}
+
+Maze\Wall.cs
+
+namespace ru.lifanoff.Maze {
+    /// <summary>
+    /// Класс, описывающий объект стены
+    /// </summary>
+    public class Wall {
+        /// <summary>Сторона расположения стены</summary>
+        public Side side { get; private set; }
+        /// <summary>Расположен ли в стене выход</summary>
+        public bool hasExit = false;
+        /// <summary>В каком блоке расположена стена</summary>
+        public Chunk chunk { get; private set; }
+        /// <param name="side">Сторона расположения стены</param>
+        /// <param name="chunk">В каком блоке расположена стена</param>
+        public Wall(Side side, Chunk chunk) {
+            this.side = side;
+            this.chunk = chunk;
+        }
+    }//class
+}//namespace
+
+Options\ControlOptions.cs
+
+using System.Collections.Generic;
+using UnityEngine;
+namespace ru.lifanoff.Options {
+    /// <summary>
+    /// Класс для настроек управления
+    /// </summary>
+    [System.Serializable]
+    public class ControlOptions {
+        public float mouseSensitivityX = 1.5f;
+        public float mouseSensitivityY = 1.5f;
+        public Dictionary<KeyName, KeyCode> keyButtons = new Dictionary<KeyName, KeyCode> {
+            { KeyName.UP, KeyCode.W },
+            { KeyName.DOWN, KeyCode.S },
+            { KeyName.LEFT, KeyCode.A },
+            { KeyName.RIGHT, KeyCode.D },
+            { KeyName.RUN, KeyCode.LeftShift },
+            { KeyName.JUMP, KeyCode.Space },
+            { KeyName.USE, KeyCode.Mouse0 },
+        };
+    }//class
+}//namespace
+
+Options\GraphicsOptions.cs
+
+using UnityEngine;
+namespace ru.lifanoff.Options {
+    /// <summary>
+    /// Класс для настроек графики
+    /// </summary>
+    [System.Serializable]
+    public class GraphicsOptions {
+        public bool isFullscreen = true;
+        public int textureQuality = 1;
+        public int antialiasing = 0;
+        public int vSync = 0;
+        public int resolution;
+        public GraphicsOptions() {
+            resolution = Screen.resolutions.Length - 1;
+            DetermineCurrenScreenResolution();
+        }
+        /// <summary>Установить текущее разрешение экрана</summary>
+        private void DetermineCurrenScreenResolution() {
+            Resolution curRes = Screen.currentResolution;
+            for (int i = 0; i < Screen.resolutions.Length; i++) {
+                Resolution tmpRes = Screen.resolutions[i];
+                if (tmpRes.width == curRes.width && tmpRes.height == curRes.height) {
+                    resolution = i;
+                    break;
+                }
+            }
+        }
+    }//class
+}//namespace
+
+Options\KeyName.cs
+
+namespace ru.lifanoff.Options {
+    /// <summary>
+    /// Идентификатор клавиш для класса <seealso cref="ControlOptions"/>
+    /// </summary>
+    public enum KeyName {
+        UP, DOWN, LEFT, RIGHT,
+        RUN, JUMP, USE
+    }//enum
+}//namespace
+
+Options\MusicOptions.cs
+
+namespace ru.lifanoff.Options {
+    /// <summary>
+    /// Класс для настроек музыки
+    /// </summary>
+    [System.Serializable]
+    public class MusicOptions {
+        public float musicVolume = .5f;
+    }//class
+}//namespace
+
+Options\OptionsController.cs
+
+using UnityEngine;
+using UnityEngine.UI;
+namespace ru.lifanoff.Options {
+    /// <summary>
+    /// Класс, для управления панелью опций и меню
+    /// </summary>
+    public class OptionsController : MonoBehaviour {
+        #region Игровые объекты, которые инициализируются в панели Inspector редактора
+        [Header("Opitons Menu Layout Panel")]
+        [SerializeField] private GameObject graphicsPanel;
+        [SerializeField] private GameObject musicPanel;
+        [SerializeField] private GameObject controlPanel;
+        [Header("Canvas Panel")]
+        [SerializeField] private GameObject mainMenuCanvas;
+        [SerializeField] private GameObject optionsMenuCanvas;
+        [SerializeField] private GameObject difficultCanvas;
+        [Header("Объекты из панели GraphicsPanel для сериализации")]
+        [SerializeField] private Toggle fullscreenToggle;
+        [SerializeField] private Dropdown resolutionDropdown;
+        [SerializeField] private Dropdown textureDropdown;
+        [SerializeField] private Dropdown antialiasingDropdown;
+        [SerializeField] private Dropdown vSyncDropdown;
+        [Header("Объекты из панели MusicPanel для сериализации")]
+        [SerializeField] private Slider musicSlider;
+        [Header("Объекты из панели ControlPanel для сериализации")]
+        [SerializeField] private Slider mouseSensitivityX;
+        [SerializeField] private Slider mouseSensitivityY;
+        [SerializeField] private Button upKeyButton;
+        [SerializeField] private Button downKeyButton;
+        [SerializeField] private Button leftKeyButton;
+        [SerializeField] private Button rightKeyButton;
+        [SerializeField] private Button runKeyButton;
+        [SerializeField] private Button jumpKeyButton;
+        [SerializeField] private Button useKeyButton;
+        #endregion
+        /// <summary>Список разрешений экрана</summary>
+        private Resolution[] resolutions;
+        /// <summary>Единственный экземпляр класса <seealso cref="SaveManager"/></summary>
+        private SaveManager saveInstance;
+        /// <summary>Единственный экземпляр класса <seealso cref="OptionsManager"/></summary>
+        private OptionsManager optionsInstance;
+        #region Unity Events
+        void Start() {
+            saveInstance = SaveManager.Instance;
+            optionsInstance = OptionsManager.Instance;
+            CursorController.Instance.CursorIsHide = false;
+            /* Заполнение списка разрешений экрана */
+            resolutions = Screen.resolutions;
+            resolutionDropdown.ClearOptions();
+            foreach (Resolution resolution in resolutions) {
+                resolutionDropdown.options.Add(new Dropdown.OptionData(resolution.ToString()));
+            }
+            /* Настройка меню, которое должно отображаться изначально при старте игры */
+            mainMenuCanvas.SetActive(true);
+            optionsMenuCanvas.SetActive(false);
+            difficultCanvas.SetActive(false);
+            // Применить настройки игры из файла-сохранения
+            ApplySaveOptions();
+        }
+        #endregion
+        #region Функции, которые запускаются при нажатии кнопок в Difficult
+        /// <summary>Реакция на нажатие кнопки Back в меню выбора сложности игры</summary>
+        public void DifficultBackButton() {
+            mainMenuCanvas.SetActive(true);
+            optionsMenuCanvas.SetActive(false);
+            difficultCanvas.SetActive(false);
+        }
+        /// <summary>Запуск игры в легком режиме</summary>
+        public void DifficultEasyGameButton() {
+            GameController.Instance.difficulMode = DifficultMode.EASY;
+            GameController.Instance.GoToNextScene(Unchangeable.GAME_SCENE_NAME);
+        }
+        /// <summary>Запуск игры в среднем режиме</summary>
+        public void DifficultMediumGameButton() {
+            GameController.Instance.difficulMode = DifficultMode.MEDIUM;
+            GameController.Instance.GoToNextScene(Unchangeable.GAME_SCENE_NAME);
+        }
+        /// <summary>Запуск игры в сложном режиме</summary>
+        public void DifficultHardGameButton() {
+            GameController.Instance.difficulMode = DifficultMode.HARD;
+            GameController.Instance.GoToNextScene(Unchangeable.GAME_SCENE_NAME);
+        }
+        #endregion
+        #region Функции, которые запускаются при нажатии кнопок в Main Menu
+        /// <summary>Реакция на нажатие кнопки Game в главном меню (MainMenu)</summary>
+        public void MainMenuGameButton() {
+            mainMenuCanvas.SetActive(false);
+            optionsMenuCanvas.SetActive(false);
+            difficultCanvas.SetActive(true);
+        }
+        /// <summary>Реакция на нажатие кнопки Options в главном меню (MainMenu)</summary>
+        public void MainMenuOptionsButton() {
+            mainMenuCanvas.SetActive(false);
+            difficultCanvas.SetActive(false);
+            /* При переходе из main menu в options надо сделать видимым слой graphics, 
+             * а остальные слои скрыть. Для получения желаемого результат можно
+             * использовать метод OptionMenuGraphicsButton() */
+            OptionMenuGraphicsButton();
+            optionsMenuCanvas.SetActive(true);
+        }
+        /// <summary>Реакция на нажатие кнопки Exit в главном меню (MainMenu)</summary>
+        public void MainMenuExitButton() {
+            Application.Quit();
+        }
+        #endregion
+        #region Книпки Apply и Back в меню опций
+        /// <summary>Реакция на нажатие кнопки ApplyButton в меню опций</summary>
+        public void OptionMenuApplyButton() {
+            SaveOptions();
+            ApplySaveOptions();
+        }
+        /// <summary>Реакция на нажатие кнопки BackButton в меню опций</summary>
+        public void OptionMenuBackButton() {
+            mainMenuCanvas.SetActive(true);
+            optionsMenuCanvas.SetActive(false);
+            difficultCanvas.SetActive(false);
+        }
+        #endregion
+        #region Функции для кнопок в LayoutTrigger, переключающие Layouts панели
+        /// <summary>Деактивировать все панели</summary>
+        private void AllDeactivate() {
+            graphicsPanel.SetActive(false);
+            musicPanel.SetActive(false);
+            controlPanel.SetActive(false);
+        }
+        /// <summary>Активировать только панель Graphics и отобразить акутальные настройки</summary>
+        public void OptionMenuGraphicsButton() {
+            AllDeactivate();
+            InsertDefaultOptions();
+            graphicsPanel.SetActive(true);
+        }
+        /// <summary>Активировать только панель Music и отобразить акутальные настройки</summary>
+        public void OptionMenuMusicButton() {
+            AllDeactivate();
+            InsertDefaultOptions();
+            musicPanel.SetActive(true);
+        }
+        /// <summary>Активировать только панель Control и отобразить акутальные настройки</summary>
+        public void OptionMenuControlButton() {
+            AllDeactivate();
+            InsertDefaultOptions();
+            controlPanel.SetActive(true);
+        }
+        #endregion
+        /// <summary>Присвоить значения настройкам в соответствии с данными в сейве</summary>
+        private void InsertDefaultOptions() {
+            fullscreenToggle.isOn = optionsInstance.graphicsOptions.isFullscreen;
+            resolutionDropdown.value = optionsInstance.graphicsOptions.resolution;
+            textureDropdown.value = optionsInstance.graphicsOptions.textureQuality;
+            antialiasingDropdown.value = optionsInstance.graphicsOptions.antialiasing;
+            vSyncDropdown.value = optionsInstance.graphicsOptions.vSync;
+            musicSlider.value = optionsInstance.musicOptions.musicVolume;
+            mouseSensitivityX.value = optionsInstance.controlOptions.mouseSensitivityX;
+            mouseSensitivityY.value = optionsInstance.controlOptions.mouseSensitivityY;
+            /* Обновить названия клавиш в кнопках */
+            upKeyButton.GetComponentInChildren<Text>().text = optionsInstance.controlOptions.keyButtons[KeyName.UP].ToString();
+            downKeyButton.GetComponentInChildren<Text>().text = optionsInstance.controlOptions.keyButtons[KeyName.DOWN].ToString();
+            leftKeyButton.GetComponentInChildren<Text>().text = optionsInstance.controlOptions.keyButtons[KeyName.LEFT].ToString();
+            rightKeyButton.GetComponentInChildren<Text>().text = optionsInstance.controlOptions.keyButtons[KeyName.RIGHT].ToString();
+            runKeyButton.GetComponentInChildren<Text>().text = optionsInstance.controlOptions.keyButtons[KeyName.RUN].ToString();
+            jumpKeyButton.GetComponentInChildren<Text>().text = optionsInstance.controlOptions.keyButtons[KeyName.JUMP].ToString();
+            useKeyButton.GetComponentInChildren<Text>().text = optionsInstance.controlOptions.keyButtons[KeyName.USE].ToString();
+            /* Обновить измененные выпадающие списки (Dropdown) */
+            resolutionDropdown.RefreshShownValue();
+            textureDropdown.RefreshShownValue();
+            antialiasingDropdown.RefreshShownValue();
+            vSyncDropdown.RefreshShownValue();
+        }
+        /// <summary>Сохранить (сериализовать) новые значения настроек</summary>
+        private void SaveOptions() {
+            optionsInstance.graphicsOptions.isFullscreen = fullscreenToggle.isOn;
+            optionsInstance.graphicsOptions.resolution = resolutionDropdown.value;
+            optionsInstance.graphicsOptions.textureQuality = textureDropdown.value;
+            optionsInstance.graphicsOptions.antialiasing = antialiasingDropdown.value;
+            optionsInstance.graphicsOptions.vSync = vSyncDropdown.value;
+            optionsInstance.musicOptions.musicVolume = musicSlider.value;
+            optionsInstance.controlOptions.mouseSensitivityX = mouseSensitivityX.value;
+            optionsInstance.controlOptions.mouseSensitivityY = mouseSensitivityY.value;
+            saveInstance.Save();
+        }
+        /// <summary>Применить настройки из файла-сохранения</summary>
+        private void ApplySaveOptions() {
+            Screen.fullScreen = optionsInstance.graphicsOptions.isFullscreen;
+            Resolution currentResolution = resolutions[optionsInstance.graphicsOptions.resolution];
+            Screen.SetResolution(currentResolution.width, currentResolution.height, optionsInstance.graphicsOptions.isFullscreen);
+            QualitySettings.vSyncCount = optionsInstance.graphicsOptions.vSync;
+            QualitySettings.masterTextureLimit = optionsInstance.graphicsOptions.textureQuality;
+            /* Параметр optionsInstance.graphicsOptions.antialiasing сохраняет не само значение antialiasing,
+             * а текущую выбранную позицию в списке всех возможных вариантов antialiasing.
+             * Поэтому, чтобы получить реальное значение для QualitySettings.antiAliasing,
+             * нужно возвести двойку в степень optionsInstance.graphicsOptions.antialiasing */
+            QualitySettings.antiAliasing = (int)Mathf.Pow(2, optionsInstance.graphicsOptions.antialiasing);
+            SoundController.Instance.ChangeVolume(optionsInstance.musicOptions.musicVolume);
+        }
+    }//class
+}//namespace
+
+Options\OptionsManager.cs
+
+namespace ru.lifanoff.Options {
+    /// <summary>
+    /// Класс-синглтон, который хранит настройки
+    /// </summary>
+    [System.Serializable]
+    public class OptionsManager {
+        /// <summary>Единственный экземпляр класса <seealso cref="OptionsManager"/></summary>
+        public static OptionsManager Instance { get; private set; }
+        static OptionsManager() {
+            if (Instance == null) {
+                Instance = new OptionsManager();
+            }
+        }
+        private OptionsManager() { }
+        #region Menu Options
+        /// <summary>Хранилище настроек графики</summary>
+        public GraphicsOptions graphicsOptions { get; private set; } = new GraphicsOptions();
+        /// <summary>Хранилище настроек музыки и звуков</summary>
+        public MusicOptions musicOptions { get; private set; } = new MusicOptions();
+        /// <summary>Хранилище используемых в игре клавиш</summary>
+        public ControlOptions controlOptions { get; private set; } = new ControlOptions();
+        #endregion
+    }//class
+}//namespace
+
+Player\CrosshairController.cs
+
+using System.Collections;
+using UnityEngine;
+using UnityEngine.UI;
+using ru.lifanoff.Intarface;
+namespace ru.lifanoff {
+    /// <summary>
+    /// Управление отображением перекрестья в центре экрана
+    /// </summary>
+    [RequireComponent(typeof(Image))]
+    public class CrosshairController : MonoBehaviour {
+        [Header("Спрайты курсоров")]
+        [Tooltip("Курсор по-умолчанию")]
+        [SerializeField] private Sprite defaultCrosshair;
+        [Tooltip("Курсор, отображаемый при наведении на что-либо, что можно использовать")]
+        [SerializeField] private Sprite activeCrosshair;
+        // Интервал запуска проверки для отображения нужного курсора
+        private float secondsInterval = .12f;
+        /// <summary>Центр экрана</summary>
+        private Vector2 screenCenter;
+        /// <summary>Камера игрока</summary>
+        private Camera cameraPlayer;
+        /// <summary>Растояние, на котором можно использовать предмет</summary>
+        private float distanceRaycast = Unchangeable.DISTANCE_PLAYER_RAYCAST;
+        /// <summary>Информация о текущем пересечении<summary>
+        private RaycastHit currentHit = new RaycastHit();
+        /// <summary>Объект, в который надо разместить <seealso cref="defaultCrosshair"/></summary>
+        private Image crosshairImage;
+        #region Unity events
+        void Start() {
+            crosshairImage = GetComponent<Image>();
+            crosshairImage.sprite = defaultCrosshair;
+            screenCenter = SecondaryFunctions.GetScreenCenter();
+            cameraPlayer = SecondaryFunctions.GetCameraPlayer();
+            StartCoroutine(CheckCrosshair());
+        }
+        #endregion
+        private IEnumerator CheckCrosshair() {
+            while (true) {
+                Sprite currentSprite = defaultCrosshair;
+                // Получаем луч, который идет из центра экрана
+                Ray ray = cameraPlayer.ScreenPointToRay(screenCenter);
+                // Бросаем луч; данные о пересечении записываются в переменную currentHit
+                Physics.Raycast(ray, out currentHit, distanceRaycast);
+                if (currentHit.transform != null) {  // Проверяем, не нажимаем ли в пустоту
+                    foreach (MonoBehaviour script in currentHit.transform.GetComponents<MonoBehaviour>()) {
+                        if (script != null) {
+                            if (script is IUsable) { // Ищем у объекта компоненты реализующие интерфейс IUsable
+                                currentSprite = activeCrosshair;
+                                break;
+                            }//fi
+                        }//fi
+                    }//hcaerof
+                }//fi
+                if (crosshairImage.sprite != currentSprite) {
+                    crosshairImage.sprite = currentSprite;
+                }//fi
+                yield return new WaitForSeconds(secondsInterval); // сделать следующую проверку через secondsInterval секунд
+            }//fi
+        }
+    }//class
+}//namespace
+
+Player\MiniMapCamera.cs
+
+using UnityEngine;
+namespace ru.lifanoff.Player {
+    /// <summary>
+    /// Скрипт управляющий камерой мини-карты
+    /// </summary>
+    [RequireComponent(typeof(Camera))]
+    public class MiniMapCamera : MonoBehaviour {
+        /// <summary>Текущая позиция камеры</summary>
+        private Vector3 currentCameraPosition = Vector3.zero;
+        /// <summary>Модуль расстояния от камеры до игрока по оси Y</summary>
+        private float posY = 5f;
+        /// <summary>Текущая позиция камеры</summary>
+        private Vector3 currentCameraRotation = Vector3.zero;
+        /// <summary>Постоянный поворот камеры по оси X</summary>
+        private float rotX = 90f;
+        /// <summary>Объект игрока</summary>
+        private GameObject currentPlayer;
+        /// <summary>Камера мини-карты</summary>
+        private Camera miniMapCamera;
+        /// <summary>Объем просмотра ортогональной камеры по-умолчанию</summary>
+        private float defaultOrthographicSize;
+        #region Unity events
+        void Start() {
+            InitDefaultOrthographicSize();
+            InitCamera();
+            currentPlayer = SecondaryFunctions.GetPlayer();
+            currentCameraRotation.x = rotX;
+        }
+        void Update() {
+            UpdateCameraPosition();
+            UpdateCameraRotation();
+            UpdateOrthographicSize();
+        }
+        #endregion
+        /// <summary>
+        /// Настройка <seealso cref="defaultOrthographicSize"/> 
+        /// в зависимости от уровня сложности игры
+        /// </summary>
+        private void InitDefaultOrthographicSize() {
+            switch (GameController.Instance.difficulMode) {
+                case DifficultMode.EASY:
+                    defaultOrthographicSize = 10f;
+                    break;
+                case DifficultMode.MEDIUM:
+                    defaultOrthographicSize = 15f;
+                    break;
+                case DifficultMode.HARD:
+                    defaultOrthographicSize = 25f;
+                    break;
+            }
+        }
+        /// <summary>Настройка начальных значений камеры для мини-карты</summary>
+        private void InitCamera() {
+            miniMapCamera = GetComponent<Camera>();
+            miniMapCamera.orthographic = true;
+            miniMapCamera.orthographicSize = defaultOrthographicSize;
+            miniMapCamera.farClipPlane = 20f;
+        }
+        /// <summary>Обновить позицию камеры</summary>
+        private void UpdateCameraPosition() {
+            currentCameraPosition.x = currentPlayer.transform.position.x;
+            currentCameraPosition.y = currentPlayer.transform.position.y + posY;
+            currentCameraPosition.z = currentPlayer.transform.position.z;
+            transform.position = currentCameraPosition;
+        }
+        /// <summary>Обновить угол поворрота камеры</summary>
+        private void UpdateCameraRotation() {
+            currentCameraRotation.y = currentPlayer.transform.eulerAngles.y;
+            currentCameraRotation.z = currentPlayer.transform.eulerAngles.z;
+            transform.eulerAngles = currentCameraRotation;
+        }
+        /// <summary>
+        /// Обновить объем просмотра ортогональной камеры
+        /// в зависимости от позоции игрока по оси Y
+        /// </summary>
+        private void UpdateOrthographicSize() {
+            float additional = currentPlayer.transform.position.y * 2f;
+            miniMapCamera.orthographicSize = defaultOrthographicSize + additional;
+        }
+    }//class
+}//namespace
+
+Player\PlayerLooking.cs
+
+using UnityEngine;
+namespace ru.lifanoff.Player {
+    /// <summary>
+    /// Скрипт для управления поворотомкамеры игрока
+    /// </summary>
+    [RequireComponent(typeof(Camera))]
+    public class PlayerLooking : MonoBehaviour {
+        /// <summary>Чувствительность поворота мыши по-горизонтали</summary>
+        private float horizontalSensitivity = 2f;
+        /// <summary>Чувствительность поворота мыши по-вертикали</summary>
+        private float verticalSensitivity = 2f;
+        /// <summary>Максимальный угол при повороте камеры вверх</summary>
+        private float maxAngleUp = -55f;
+        /// <summary>Максимальный угол при повороте камеры вниз</summary>
+        private float maxAngleDown = 60f;
+        /// <summary>Угол, на который надо повернуть камеру по-горизонтали</summary>
+        private float horizontalAngle;
+        /// <summary>Угол, на который надо повернуть камеру по-вертикали</summary>
+        private float verticalAngle;
+        #region Unity events
+        void Start() {
+            horizontalSensitivity = SaveManager.Instance.optionsManager.controlOptions.mouseSensitivityX;
+            verticalSensitivity = SaveManager.Instance.optionsManager.controlOptions.mouseSensitivityY;
+        }
+        void LateUpdate() {
+            if (PlayerManager.Instance.canMoving) {
+                SimpleMouseLook();
+            }
+        }
+        #endregion
+        /// <summary>Простой поворот камеры</summary>
+        private void SimpleMouseLook() {
+            horizontalAngle = Input.GetAxis(Unchangeable.MOUSE_X_INPUT) * horizontalSensitivity * Time.timeScale;
+            verticalAngle -= Input.GetAxis(Unchangeable.MOUSE_Y_INPUT) * verticalSensitivity * Time.timeScale;
+            // Ограничиваем verticalAngle диапазоном от maxAngleUp до maxAngleDown
+            verticalAngle = Mathf.Clamp(verticalAngle, maxAngleUp, maxAngleDown);
+            transform.localRotation = Quaternion.Euler(verticalAngle, horizontalAngle, 0f);
+        }
+    }//class
+}//namespace
+
+Player\PlayerManager.cs
+
+using System.Collections;
+using UnityEngine;
+using UnityEngine.UI;
+namespace ru.lifanoff {
+    /// <summary>
+    /// Настройки игрока во время игрового процесса
+    /// </summary>
+    public class PlayerManager {
+        /// <summary>Текущая корутина</summary>
+        private Coroutine currentCoroutine;
+        /// <summary>Текстовое поле для отправки сообщений игроку</summary>
+        private Text messageToPlayer;
+        /// <summary>Можети ли игрок передвигаться</summary>
+        public bool canMoving;
+        /// <summary>Есть ли у игрока ключ от выхода</summary>
+        public bool hasExitKey;
+        /// <summary>Единственный экземпляр класса <seealso cref="PlayerManager"/></summary>
+        public static PlayerManager Instance { get; private set; }
+        static PlayerManager() {
+            if (Instance == null) {
+                Instance = new PlayerManager();
+            }
+        }
+        private PlayerManager() {
+            canMoving = true;
+            hasExitKey = false;
+            InitMessageToPlayer();
+        }
+        /// <summary>Инициализация значения переменной <seealso cref="messageToPlayer"/></summary>
+        private void InitMessageToPlayer() {
+            if (messageToPlayer == null) {
+                messageToPlayer = SecondaryFunctions.GetMessageToPlayer()?.GetComponent<Text>();
+            }
+        }
+        /// <summary>
+        /// Отправить сообщение <paramref name="message"/> игроку, 
+        /// котрое будет отображаться <paramref name="waitSeconds"/> секунд
+        /// </summary>
+        /// <param name="message">Сообщение для игрока</param>
+        /// <param name="waitSeconds">Время, в течение которого будет отображаться сообщение</param>
+        public void SendMessageToPlayer(string message, float waitSeconds = 3f) {
+            InitMessageToPlayer();
+            if (messageToPlayer == null) return;
+            if (currentCoroutine != null) {
+                messageToPlayer.StopCoroutine(currentCoroutine);
+            }
+            currentCoroutine = messageToPlayer.StartCoroutine(SendMessageToPlayerCoroutine(message, waitSeconds));
+        }
+        /// <summary>
+        /// Отправить сообщение <paramref name="message"/> игроку, 
+        /// котрое будет отображаться <paramref name="waitSeconds"/> секунд
+        /// </summary>
+        /// <param name="message">Сообщение для игрока</param>
+        /// <param name="waitSeconds">Время, в течение которого будет отображаться сообщение</param>
+        private IEnumerator SendMessageToPlayerCoroutine(string message, float waitSeconds) {
+            messageToPlayer.text = message;
+            yield return new WaitForSeconds(waitSeconds);
+            messageToPlayer.text = string.Empty;
+        }
+    }//class
+}//namespace
+
+Player\PlayerMovement.cs
+
+using UnityEngine;
+namespace ru.lifanoff.Player {
+    /// <summary>
+    /// Управление передвижением игрока
+    /// </summary>
+    [RequireComponent(typeof(CharacterController))]
+    public class PlayerMovement : MonoBehaviour {
+        /// <summary>Скорость обычного шага игрока</summary>
+        private float speedWalking = 3f;
+        /// <summary>Скорость бега игрока</summary>
+        private float speedRunning = 7f;
+        /// <summary>Текущая скорость игрока</summary>
+        private float currentSpeed = 0f;
+        /// <summary>Высота прыжка</summary>
+        private float jumpHeight = 1.15f;
+        /// <summary>Значение гравитации</summary>
+        private float gravity;
+        /// <summary>Находится ли игрок на поверхности</summary>
+        private bool isGrounded = false;
+        /// <summary>Бежит ли игрок</summary>
+        private bool isRunning = false;
+        /// <summary>В прыжке ли игрок</summary>
+        private bool isJumping = false;
+        /// <summary>Текущий вектор движения игрока<summary>
+        private Vector3 currentMovement;
+        /// <summary>Текущий кватернион игрока для вращения<summary>
+        private Quaternion currentRotation;
+        /// <summary>Камера игрока</summary>
+        private Camera cameraPlayer;
+        /// <summary>Компонент CapsuleCollider прикрепленный к игроку</summary>
+        private CharacterController characterController;
+        #region Unity Events
+        void Start() {
+            characterController = GetComponent<CharacterController>();
+            cameraPlayer = SecondaryFunctions.GetCameraPlayer();
+            gravity = Physics.gravity.y;
+            currentMovement = Vector3.zero;
+            PlayerRotation();
+        }
+        void Update() {
+            if (PlayerManager.Instance.canMoving) {
+                isGrounded = IsGrounded();
+                isRunning = Input.GetButton(Unchangeable.RUN_INPUT);
+                currentSpeed = isRunning ? speedRunning : speedWalking;
+                if (!isJumping) {
+                    if (isRunning) {
+                        SoundController.Instance.PlayRuningPlayer();
+                    } else {
+                        SoundController.Instance.PlayWalkingPlayer();
+                    }
+                }
+                PlayerMove();
+                PlayerJump();
+                PlayerRotation();
+                if (currentMovement.x == 0 && currentMovement.z == 0) {
+                    SoundController.Instance.StopPlayerAudioSource();
+                }
+                characterController.Move(currentMovement * Time.deltaTime);
+            }
+        }
+        #endregion
+        /// <summary>Передвижение игрока</summary>
+        private void PlayerMove() {
+            float horizontal = Input.GetButton(Unchangeable.HORIZONTAL_INPUT) ? Input.GetAxis(Unchangeable.HORIZONTAL_INPUT) : 0f;
+            float vertical = Input.GetButton(Unchangeable.VERTICAL_INPUT) ? Input.GetAxis(Unchangeable.VERTICAL_INPUT) : 0f;
+            Vector3 directionMovement = new Vector3(horizontal, 0f, vertical);
+            if (isJumping) {
+                AirControl(directionMovement, ref currentMovement);
+                currentMovement.y += 2f * gravity * Time.deltaTime;
+            } else {
+                currentMovement = MakeCurrentMovement(directionMovement);
+            }//fi isJumping
+            LimitFallingSpeed();
+        }
+        /// <summary>Прыжок игрока</summary>
+        private void PlayerJump() {
+            if (isJumping) {
+                if (isGrounded) {
+                    isJumping = false;
+                    currentMovement.y = 0f;
+                    SoundController.Instance.PlayEndJumpPlayer();
+                }//fi
+            } else {
+                if (Input.GetButton(Unchangeable.JUMP_INPUT)) {
+                    if (isGrounded) {
+                        currentMovement.y = Mathf.Sqrt(-4f * gravity * jumpHeight);
+                        isJumping = true;
+                        SoundController.Instance.PlayStartJumpPlayer(40);
+                    }//fi
+                }//fi
+            }//fi isJumping
+        }
+        /// <summary>Поворот игрока по оси Y относительно угла камеры</summary>
+        private void PlayerRotation() {
+            transform.rotation = Quaternion.AngleAxis(cameraPlayer.transform.eulerAngles.y, transform.up);
+        }
+        /// <summary>Контроль направления движения игрока в полете(в падении, прыжке и т.д.)</summary>
+        /// <param name="directionMovement">Предлагаемое направаление движения в полете</param>
+        /// <param name="currentMovement">Текущее направление движения игрока</param>
+        private void AirControl(Vector3 directionMovement, ref Vector3 currentMovement) {
+            directionMovement = transform.TransformDirection(directionMovement);
+            directionMovement.Normalize();
+            // Если currentMovement и directionMovement направлены в разные стороны,
+            // параллельны или немного в одну сторону, то надо постепенно корректировать вектор currentMovement
+            // в соответствии с directionMovement
+            if (Vector3.Dot(currentMovement.normalized, directionMovement) < .1f) {
+                currentMovement += directionMovement * 2f;
+            }
+        }
+        /// <summary>Новый вектор движения</summary>
+        /// <param name="directionMovement">Предлагаемое направаление движения</param>
+        private Vector3 MakeCurrentMovement(Vector3 directionMovement) {
+            directionMovement.Normalize();
+            directionMovement = directionMovement * currentSpeed;
+            if (isGrounded) {
+                directionMovement.y = currentMovement.y;
+            } else { // направление движения в случае падения
+                directionMovement.y += currentMovement.y + gravity * Time.fixedDeltaTime;
+            }
+            return transform.TransformDirection(directionMovement);
+        }
+        /// <summary>Ограничить скорость падения</summary>
+        private void LimitFallingSpeed() {
+            float minLimit = -50f;
+            float mediumLimit = -15f;
+            float stepFalling = 1f;
+            if (!isGrounded) {
+                if (currentMovement.y < minLimit) {
+                    currentMovement.y = minLimit;
+                } else if (currentMovement.y < mediumLimit) {
+                    currentMovement.y -= stepFalling;
+                }
+            }
+        }
+        /// <summary>Касается ли игрок поверхности</summary>
+        private bool IsGrounded() {
+            return characterController.isGrounded;
+        }
+    }//class
+}//namespace
+
+Player\UseController.cs
+
+using UnityEngine;
+using ru.lifanoff.Intarface;
+namespace ru.lifanoff.Player {
+    /// <summary>
+    /// Скрипт для реализации взаимодействия любого вида, котрое возникает 
+    /// при нажатии на клавишу, отвечающую за взаимодействие (В Input-меню - это "Use")
+    /// </summary>
+    public class UseController : MonoBehaviour {
+        #region Данные для камеры
+        private Camera cameraPlayer; // Камера игрока
+        private Vector2 screenCenter;
+        #endregion
+        // Растояние, на котором можно использовать предмет
+        private float distance = Unchangeable.DISTANCE_PLAYER_RAYCAST;
+        // Информация о текущем пересечении
+        private RaycastHit currentHit = new RaycastHit();
+        #region Unity events
+        void Start() {
+            cameraPlayer = SecondaryFunctions.GetCameraPlayer();
+            screenCenter = SecondaryFunctions.GetScreenCenter();
+        }
+        void Update() => PressUse();
+        #endregion
+        /// <summary>Реакция на нажатие клавиши "Use"</summary>
+        private void PressUse() {
+            if (Input.GetButtonDown(Unchangeable.USE_INPUT)) { // Нажимаем клавишу Use (В данном случае - левая кнопка мыши)
+                // Получаем луч, который идет из центра экрана
+                Ray ray = cameraPlayer.ScreenPointToRay(screenCenter);
+                // Бросаем луч; данные о пересечении записываются в переменную currentHit
+                Physics.Raycast(ray, out currentHit, distance);
+                if (currentHit.transform != null) {  // Проверяем, не нажимаем ли в пустоту
+                    foreach (MonoBehaviour script in currentHit.transform.GetComponents<MonoBehaviour>()) {
+                        if (script != null) {
+                            if (script is IUsable) { // Ищем у объекта компоненты реализующие интерфейс IUsable
+                                (script as IUsable).Use();
+                            }
+                        }//fi
+                    }//hcaerof
+                }//fi
+            }//fi
+        }
+    }//class
+}//namespace
+
