@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Text;
 using System.IO;
+using System.Security.Cryptography;
 using System.Runtime.Serialization.Formatters.Binary;
 
 using ru.lifanoff.Options;
@@ -36,29 +38,65 @@ namespace ru.lifanoff {
         public OptionsManager optionsManager { get; private set; } = OptionsManager.Instance;
 
 
+        #region Данные для шифрования
+        private const byte KEY_CRYPT = 236; // Число между 1 и 254
+        #endregion
+
         /// <summary>
-        /// Сохранить (сериализовать) данные в файл <seealso cref="FILEPATH"/>
+        /// Зашифровать и сохранить (сериализовать) данные в файл <seealso cref="FILEPATH"/>
         /// </summary>
         public void Save() {
             if (!Directory.Exists(FILEDIR)) {
                 Directory.CreateDirectory(FILEDIR);
             }
 
-            using (FileStream fs = new FileStream(FILEPATH, FileMode.OpenOrCreate)) {
-                BinaryFormatter bf = new BinaryFormatter();
-                bf.Serialize(fs, Instance);
-            }
+            try {
+                byte[] msArray = null;
+
+                using (MemoryStream ms = new MemoryStream()) {
+                    BinaryFormatter bf = new BinaryFormatter();
+                    bf.Serialize(ms, Instance);
+                    ms.Flush();
+
+                    msArray = ms.ToArray();
+                }
+
+                if (msArray == null) return;
+
+                for (int i = 0; i < msArray.Length; i++) {
+                    msArray[i] = (byte)(msArray[i] ^ ((byte)(i % KEY_CRYPT)));
+                }
+
+                using (MemoryStream ms = new MemoryStream(msArray)) {
+                    using (FileStream fs = new FileStream(FILEPATH, FileMode.OpenOrCreate)) {
+                        ms.WriteTo(fs);
+                    }
+                }
+            } catch (Exception) { }
         }
 
         /// <summary>
-        /// Выгрузить (десериализовать) данные из файла <seealso cref="FILEPATH"/>
+        /// Расшифровать и выгрузить (десериализовать) данные из файла <seealso cref="FILEPATH"/>
         /// </summary>
         public bool Load() {
             if (File.Exists(FILEPATH)) {
                 try {
+                    byte[] fileBytes = null;
+
                     using (FileStream fs = new FileStream(FILEPATH, FileMode.Open)) {
+                        fileBytes = new byte[fs.Length];
+                        fs.Read(fileBytes, 0, fileBytes.Length);
+                    }
+
+                    if (fileBytes == null) return false;
+
+                    for (int i = 0; i < fileBytes.Length; i++) {
+                        fileBytes[i] = (byte)(fileBytes[i] ^ ((byte)(i % KEY_CRYPT)));
+                    }
+
+                    using (MemoryStream ms = new MemoryStream(fileBytes)) {
                         BinaryFormatter bf = new BinaryFormatter();
-                        Initialize((SaveManager)bf.Deserialize(fs));
+                        Initialize((SaveManager)bf.Deserialize(ms));
                     }
 
                     return true;
