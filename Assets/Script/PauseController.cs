@@ -32,10 +32,11 @@ namespace ru.lifanoff {
 
         public void PauseSwitcher() {
             isPaused = !isPaused;
-            pausePanel.gameObject.SetActive(isPaused);
 
-            PlayerManager.Instance.canMoving = !isPaused;
             CursorController.Instance.CursorIsHide = !isPaused;
+            PlayerManager.Instance.canMoving = !isPaused;
+
+            pausePanel.gameObject.SetActive(isPaused);
 
             if (isPaused) {
                 Time.timeScale = Unchangeable.PAUSE_TIMESCALE;

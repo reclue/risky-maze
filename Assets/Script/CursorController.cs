@@ -30,6 +30,7 @@ namespace ru.lifanoff {
                 if (cursorIsHide) {
                     Cursor.visible = false;
                     Cursor.lockState = CursorLockMode.Locked;
+                    
                 } else {
                     Cursor.visible = true;
                     Cursor.lockState = CursorLockMode.None;
