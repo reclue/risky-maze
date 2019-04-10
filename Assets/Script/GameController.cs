@@ -84,7 +84,7 @@ namespace ru.lifanoff {
         /// <summary>Инициализация специфических настроек</summary>
         private void Initialize() {
             currentSceneName = SceneInformation.GetCurrentSceneName();
-
+            
             // Показать или скрыть курсор на определенных сценах
             if (currentSceneName == Unchangeable.PRELOADER_SCENE_NAME || currentSceneName == Unchangeable.MAIN_MENU_SCENE_NAME) {
                 Instance.cursorController.CursorIsHide = false;
