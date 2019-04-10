@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 using ru.lifanoff.Maze;
 
@@ -25,6 +26,7 @@ namespace ru.lifanoff.PS {
         /// <summary>Настройка системы частиц</summary>
         private void InitParticleSystem() {
             InitShapeModule();
+            InitCountParticles();
         }
 
         private void InitShapeModule() {
@@ -34,7 +36,7 @@ namespace ru.lifanoff.PS {
             shapeModule.scale = new Vector3(
                 maze.GetMazeStructure.sizeX * Chunk.CHUNK_SIZE,
                 Chunk.CHUNK_SIZE * 2f,
-                maze.GetMazeStructure.sizeX * Chunk.CHUNK_SIZE
+                maze.GetMazeStructure.sizeY * Chunk.CHUNK_SIZE
             );
 
             _particleSystem.transform.position = new Vector3(
@@ -42,6 +44,15 @@ namespace ru.lifanoff.PS {
                 shapeModule.scale.y / 2f,
                 (shapeModule.scale.z / 2f) - 2f
             );
+        }
+
+        private void InitCountParticles() {
+            int newMaxParticles = Convert.ToInt32(maze.GetMazeStructure.sizeX * maze.GetMazeStructure.sizeY * Chunk.CHUNK_SIZE);
+            float newStartLifetime = newMaxParticles / _particleSystem.emission.rateOverTime.constant;
+
+            ParticleSystem.MainModule mainModule = _particleSystem.main;
+            mainModule.startLifetime = newStartLifetime;
+            mainModule.maxParticles = newMaxParticles;
         }
         #endregion
 
