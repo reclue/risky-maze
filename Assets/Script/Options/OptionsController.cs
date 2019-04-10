@@ -39,6 +39,7 @@ namespace ru.lifanoff.Options {
         [SerializeField] private Button runKeyButton = null;
         [SerializeField] private Button jumpKeyButton = null;
         [SerializeField] private Button useKeyButton = null;
+        [SerializeField] private Button throwPebbleKeyButton = null;
         #endregion
 
         /// <summary>Список разрешений экрана</summary>
@@ -196,6 +197,7 @@ namespace ru.lifanoff.Options {
             runKeyButton.GetComponentInChildren<Text>().text = optionsInstance.controlOptions.keyButtons[KeyName.RUN].ToString();
             jumpKeyButton.GetComponentInChildren<Text>().text = optionsInstance.controlOptions.keyButtons[KeyName.JUMP].ToString();
             useKeyButton.GetComponentInChildren<Text>().text = optionsInstance.controlOptions.keyButtons[KeyName.USE].ToString();
+            throwPebbleKeyButton.GetComponentInChildren<Text>().text = optionsInstance.controlOptions.keyButtons[KeyName.THROW_PEBBLE].ToString();
 
             /* Обновить измененные выпадающие списки (Dropdown) */
             resolutionDropdown.RefreshShownValue();

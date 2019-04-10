@@ -18,7 +18,8 @@ namespace ru.lifanoff.Options {
             { KeyName.RIGHT, KeyCode.D },
             { KeyName.RUN, KeyCode.LeftShift },
             { KeyName.JUMP, KeyCode.Space },
-            { KeyName.USE, KeyCode.Mouse0 },
+            { KeyName.USE, KeyCode.E },
+            { KeyName.THROW_PEBBLE, KeyCode.Mouse0 },
         };
     }//class
 }//namespace
