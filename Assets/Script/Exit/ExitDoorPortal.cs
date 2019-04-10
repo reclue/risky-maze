@@ -9,7 +9,7 @@ namespace ru.lifanoff.Exit {
     /// </summary>
     public class ExitDoorPortal : MonoBehaviour, IUsable {
         /// <summary>Сообщение для игрока, если он пытается открыть дверь, не имея ключа</summary>
-        private const string NEED_KEY_MESSAGE = "You need the Mon-Key to open this door.";
+        private const string NEED_KEY_MESSAGE = "You need the key to open this door.";
 
         /// <summary>
         /// Реакция на попытку игрока открыть дверь

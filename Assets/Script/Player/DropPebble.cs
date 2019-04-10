@@ -14,6 +14,8 @@ namespace ru.lifanoff.Player {
 
         private Camera cameraPlayer = null;
 
+        public bool canDrop = true;
+
         /// <summary>Количество камней</summary>
         private int countPebbles = Unchangeable.DEFAULT_COUNT_PEBBLES;
         /// <summary>Количество камней</summary>
@@ -43,7 +45,7 @@ namespace ru.lifanoff.Player {
         }
 
         private void PressDropPebble() {
-            if (PauseController.isPaused) return;
+            if (!canDrop || PauseController.isPaused) return;
             if (countPebbles < 1) return;
 
             if (Input.GetButtonDown(Unchangeable.DROP_PEBBLE_INPUT)) {

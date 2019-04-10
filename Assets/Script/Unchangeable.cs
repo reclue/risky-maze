@@ -31,6 +31,7 @@ namespace ru.lifanoff {
 
         #region Player
         public const float DISTANCE_PLAYER_RAYCAST = 2.05f;
+        public const int DEFAULT_COUNT_LIVES = 3;
         public const int DEFAULT_COUNT_PEBBLES = 10;
         public const float SHOT_FORCE = 195f;
         #endregion
@@ -46,6 +47,7 @@ namespace ru.lifanoff {
         public const string GAME_SCENE_NAME = "Game";
         public const string MAIN_MENU_SCENE_NAME = "MainMenu";
         public const string RESULT_SCENE_NAME = "Result";
+        public const string GAME_OVER_SCENE_NAME = "GameOver";
         #endregion
 
         #region Chunk

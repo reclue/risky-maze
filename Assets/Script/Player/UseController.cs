@@ -20,6 +20,8 @@ namespace ru.lifanoff.Player {
         // Информация о текущем пересечении
         private RaycastHit currentHit = new RaycastHit();
 
+        public bool canUsing = true;
+
         #region Unity events
         void Start() {
             cameraPlayer = SecondaryFunctions.GetCameraPlayer();
@@ -32,7 +34,7 @@ namespace ru.lifanoff.Player {
 
         /// <summary>Реакция на нажатие клавиши "Use"</summary>
         private void PressUse() {
-            if (PauseController.isPaused) return;
+            if (!canUsing || PauseController.isPaused) return;
 
             if (Input.GetButtonDown(Unchangeable.USE_INPUT)) { // Нажимаем клавишу Use (В данном случае - левая кнопка мыши)
 

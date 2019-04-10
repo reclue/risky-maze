@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace ru.lifanoff {
+namespace ru.lifanoff.Util {
 
     enum FallingMode {
         DESTROY, SPAWN
