@@ -522,6 +522,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fd19480245a5b584fa16e50542fe8177, type: 3}
+--- !u!114 &1292304508 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 114306943307646596, guid: fd19480245a5b584fa16e50542fe8177,
+    type: 3}
+  m_PrefabInstance: {fileID: 1292304507}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 015cd52bdb7917f44959e09222a1a4ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1763259726
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -635,5 +647,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2559586168323069027, guid: 2bc3f2f4bdab12d4f961403b665ce356,
+        type: 3}
+      propertyPath: maze
+      value: 
+      objectReference: {fileID: 1292304508}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2bc3f2f4bdab12d4f961403b665ce356, type: 3}

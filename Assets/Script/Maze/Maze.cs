@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace ru.lifanoff.Maze {
 
@@ -7,13 +8,19 @@ namespace ru.lifanoff.Maze {
     /// </summary>
     [RequireComponent(typeof(MazePrefabContainer))]
     public class Maze : MonoBehaviour {
+        private System.Random rnd = new System.Random(Convert.ToInt32(DateTimeOffset.Now.ToUnixTimeSeconds()));
+
         /// <summary>Размер игрового блока</summary>
         private float chunkSize;
 
         /// <summary>Объект игрока на сцене</summary>
         private GameObject currentPlayer;
         /// <summary>Сгенерированный лабиринт</summary>
-        private MazeGenerate mazeStructure;
+        private MazeGenerate mazeStructure = null;
+        /// <summary>Сгенерированный лабиринт</summary>
+        public MazeGenerate GetMazeStructure {
+            get { return mazeStructure; }
+        }
 
         /// <summary>Коллайдер для пола</summary>
         private BoxCollider floorBoxCollider;
@@ -25,8 +32,8 @@ namespace ru.lifanoff.Maze {
             // Сгенерировать лабиринт случайного размера
             int minSizeMaze = GameController.Instance.getMinSizeMaze;
             int maxSizeMaze = GameController.Instance.getMinSizeMaze;
-            int mazeSizeX = Random.Range(minSizeMaze, maxSizeMaze);
-            int mazeSizeY = Random.Range(minSizeMaze, maxSizeMaze);
+            int mazeSizeX = rnd.Next(minSizeMaze, maxSizeMaze);
+            int mazeSizeY = rnd.Next(minSizeMaze, maxSizeMaze);
             mazeStructure = new MazeGenerate(mazeSizeX, mazeSizeY);
 
 
@@ -42,7 +49,7 @@ namespace ru.lifanoff.Maze {
             PlacePrefabsOnScene();
 
             AppendColliderFloor();
-
+            
             RandomPlayerPosition();
         }
         #endregion

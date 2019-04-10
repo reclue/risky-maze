@@ -17,6 +17,11 @@ namespace ru.lifanoff {
         }
 
 
+        /// <summary>Получить игровой объект лабиринта</summary>
+        public static GameObject GetMaze() {
+            return GameObject.FindWithTag(Unchangeable.MAZE_TAG);
+        }
+
         /// <summary>Получить основную камеру игрока</summary>
         public static Camera GetCameraPlayer() {
             return GameObject.FindWithTag(Unchangeable.CAMERA_PLAYER_TAG).GetComponent<Camera>();
