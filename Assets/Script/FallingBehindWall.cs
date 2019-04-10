@@ -2,11 +2,18 @@
 
 namespace ru.lifanoff {
 
+    enum FallingMode {
+        DESTROY, SPAWN
+    }
+
     /// <summary>
     /// Класс, отвечающий за респаун объекта.
     /// В случае, если объект оказался ниже контрольной точки по оси Y, он будет переброшен в точку респауна
     /// </summary>
-    public class SpawnFallingBehindWall : MonoBehaviour {
+    public class FallingBehindWall : MonoBehaviour {
+
+        [Tooltip("Что делать, если предмет пересек допустимую границу")]
+        [SerializeField] private FallingMode fallingMode = FallingMode.SPAWN;
 
         private Vector3 spawnPosition; // Стартовая позиция объекта (респаун)
         private Rigidbody _rb;
@@ -21,17 +28,21 @@ namespace ru.lifanoff {
 
         void Update() {
             if (transform.position.y < Unchangeable.RESPAWN_POSITION_Y) {
-                if (_rb != null) {
-                    _rb.velocity = Vector3.zero;
-                    _rb.angularVelocity = Vector3.zero;
-                }
+                if (fallingMode == FallingMode.DESTROY) {
+                    Destroy(gameObject);
+                } else {
+                    if (_rb != null) {
+                        _rb.velocity = Vector3.zero;
+                        _rb.angularVelocity = Vector3.zero;
+                    }//fi
 
-                if (_cc != null) {
-                    _cc.SimpleMove(Vector3.zero);
-                }
+                    if (_cc != null) {
+                        _cc.SimpleMove(Vector3.zero);
+                    }//fi
 
-                transform.position = spawnPosition;
-            }
+                    transform.position = spawnPosition;
+                }//fi
+            }//fi
         }
         #endregion
 
