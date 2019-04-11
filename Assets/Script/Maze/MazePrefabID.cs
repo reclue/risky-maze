@@ -11,7 +11,9 @@
         /// <summary>ID для префабов полов</summary>
         FLOOR,
         /// <summary>ID для префабов стен</summary>
-        WALL
+        WALL,
+        /// <summary>ID для префабов сундуков</summary>
+        CHEST
     }
 
 }

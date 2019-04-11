@@ -22,7 +22,7 @@ namespace ru.lifanoff {
 
 
         // Интервал запуска проверки для отображения нужного курсора
-        private float secondsInterval = .12f;
+        private float secondsInterval = .06f;
 
         /// <summary>Центр экрана</summary>
         private Vector2 screenCenter;

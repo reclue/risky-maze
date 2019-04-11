@@ -144,8 +144,27 @@
         /// <summary>Расположен ли в блоке ключ от выхода</summary>
         public bool hasExitKey = false;
 
+        /// <summary>Расположен ли в блоке ключ от выхода</summary>
+        public bool hasExitDoor {
+            get {
+                if (hasLeftWall && leftWall.hasExit) return true;
+                if (hasRightWall && rightWall.hasExit) return true;
+                if (hasTopWall && topWall.hasExit) return true;
+                if (hasBottomWall && bottomWall.hasExit) return true;
+
+                return false;
+            }
+        }
+
         /// <summary>Метка для использования в алгоритмах.</summary>
         public bool isChecked = false;
+
+        /// <summary>Является ли блок тупиком</summary>
+        public bool isDeadEnd {
+            get {
+                return wallCounter == 3;
+            }
+        }
 
     }//class
 }//namespace

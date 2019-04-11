@@ -50,7 +50,7 @@ namespace ru.lifanoff.Maze {
             PlacePrefabsOnScene();
 
             AppendColliderFloor();
-            
+
             RandomPlayerPosition();
         }
         #endregion
@@ -61,6 +61,7 @@ namespace ru.lifanoff.Maze {
                 PlaceWalls(chunk);
                 PlaceFloors(chunk);
                 PlaceExitKey(chunk);
+                PlaceChestsInDeadEnd(chunk);
             }
         }
 
@@ -182,7 +183,7 @@ namespace ru.lifanoff.Maze {
             gameObjectFloor.SetActive(true);
         }
 
-        /// <summary>Разместить префабы пола</summary>
+        /// <summary>Разместить префаб ключа от выхода</summary>
         /// <param name="chunk">Текущий блок лабиринта</param>
         private void PlaceExitKey(Chunk chunk) {
             if (!chunk.hasExitKey) return;
@@ -216,6 +217,46 @@ namespace ru.lifanoff.Maze {
 
             gameObjectExitKey.transform.eulerAngles = newRotation;
 
+            gameObjectExitKey.SetActive(true);
+        }
+
+        /// <summary>Разместить префабы сундуков</summary>
+        /// <param name="chunk">Текущий блок лабиринта</param>
+        private void PlaceChestsInDeadEnd(Chunk chunk) {
+            if (!chunk.isDeadEnd || chunk.hasExitKey || chunk.hasExitDoor) return;
+
+            MazePrefabID mazePrefabID = MazePrefabID.CHEST;
+            int numnberRandomPrefab = mazePrefabContainer.GetRandomNumberPrefab(mazePrefabID);
+
+            GameObject cloningPrefab = mazePrefabContainer.prefabs[mazePrefabID][numnberRandomPrefab];
+
+            GameObject gameObjectExitKey = Instantiate(cloningPrefab, transform) as GameObject;
+
+            Vector3 newPosition = Vector3.zero;
+            newPosition.x = chunk.x * chunkSize + chunkSize / 2f;
+            newPosition.z = chunk.y * chunkSize;
+
+            // Развернуть сундук в сторону отсутствующей стены
+            Vector3 newRotation = Vector3.zero;
+            newRotation.x = gameObjectExitKey.transform.eulerAngles.x;
+            newRotation.y = gameObjectExitKey.transform.eulerAngles.y;
+            newRotation.z = gameObjectExitKey.transform.eulerAngles.z;
+
+            if (!chunk.hasRightWall) {
+                newPosition.z -= 1f;
+                newRotation.y -= 90f;
+            } else if (!chunk.hasLeftWall) {
+                newPosition.z += 1f;
+                newRotation.y += 90f;
+            } else if (!chunk.hasTopWall) {
+                newPosition.x += 1f;
+                newRotation.y += 180f;
+            } else if (!chunk.hasBottomWall) {
+                newPosition.x -= 1f;
+            }
+
+            gameObjectExitKey.transform.position = newPosition;
+            gameObjectExitKey.transform.eulerAngles = newRotation;
 
             gameObjectExitKey.SetActive(true);
         }
