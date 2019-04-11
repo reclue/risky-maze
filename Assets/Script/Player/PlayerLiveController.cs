@@ -55,12 +55,12 @@ namespace ru.lifanoff.Player {
             GameController.Instance.GoToNextScene(Unchangeable.GAME_OVER_SCENE_NAME);
         }
 
-        public void IncreaseLive() {
-            CountLives++;
+        public void IncreaseLive(int count = 1) {
+            CountLives += count;
         }
 
-        public void DecreaseLive() {
-            CountLives--;
+        public void DecreaseLive(int count = 1) {
+            CountLives -= count;
         }
     }
 

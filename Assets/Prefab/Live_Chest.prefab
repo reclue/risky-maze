@@ -12,9 +12,9 @@ GameObject:
   - component: {fileID: 2976693016098748367}
   - component: {fileID: 549352075489304809}
   - component: {fileID: 7544863307725142956}
-  - component: {fileID: 522258694447873209}
+  - component: {fileID: 1743895189084127411}
   m_Layer: 0
-  m_Name: Pebble_Chest
+  m_Name: Live_Chest
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -71,7 +71,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 18a0c65fa3babe647af3e03dcb8e87b2, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 9248796738ef79443ad6471f79e868ce, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -107,7 +107,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f22c1c3836732eb47b3f2d0fa1af5251, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &522258694447873209
+--- !u!114 &1743895189084127411
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -116,7 +116,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8627403539182703540}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 90390803098a89941a9560eef32a8fe3, type: 3}
+  m_Script: {fileID: 11500000, guid: 9cf3a17443a69b94e85c9a5a8df6b616, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  countPebbles: 3
+  countLives: 2

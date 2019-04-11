@@ -292,7 +292,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5243876822438127606}
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.0007, y: 0.1823, z: -0.0004}
+  m_LocalPosition: {x: 0, y: 0.25, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 653443067952688193}
@@ -360,3 +360,4 @@ MonoBehaviour:
   lootSpawnTransfrom: {fileID: 900262805811051599}
   loots:
   - {fileID: 8627403539182703540, guid: ce23823c8fac5424cb6898d5663c381c, type: 3}
+  - {fileID: 8627403539182703540, guid: a2f08a13a2773a7479e6d236ca7f2623, type: 3}
