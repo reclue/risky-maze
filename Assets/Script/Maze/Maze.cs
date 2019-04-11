@@ -224,7 +224,7 @@ namespace ru.lifanoff.Maze {
         /// <param name="chunk">Текущий блок лабиринта</param>
         private void PlaceChestsInDeadEnd(Chunk chunk) {
             if (!chunk.isDeadEnd || chunk.hasExitKey || chunk.hasExitDoor) return;
-            if (rnd.Next(0, 100) > 23) return;
+            if (rnd.Next(0, 100) > 32) return;
 
             MazePrefabID mazePrefabID = MazePrefabID.CHEST;
             int numnberRandomPrefab = mazePrefabContainer.GetRandomNumberPrefab(mazePrefabID);

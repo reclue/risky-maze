@@ -123,6 +123,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90390803098a89941a9560eef32a8fe3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  countPebbles: 3
 --- !u!114 &6485814196674268041
 MonoBehaviour:
   m_ObjectHideFlags: 0

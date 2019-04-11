@@ -7,6 +7,8 @@ namespace ru.lifanoff.Player {
 
         private DropPebble dropPebble = null;
 
+        public int countPebbles = 1;
+
         #region Unity event
         void Start() {
             dropPebble = SecondaryFunctions.GetPlayer().GetComponent<DropPebble>();
@@ -17,7 +19,7 @@ namespace ru.lifanoff.Player {
             if (PauseController.isPaused) return;
             if (dropPebble == null) return;
 
-            dropPebble.CountPebbles++;
+            dropPebble.CountPebbles += countPebbles;
 
             Destroy(gameObject);
         }

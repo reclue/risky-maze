@@ -55,7 +55,7 @@ namespace ru.lifanoff.Player {
                     defaultOrthographicSize = 15f;
                     break;
                 case DifficultMode.HARD:
-                    defaultOrthographicSize = 25f;
+                    defaultOrthographicSize = 20f;
                     break;
             }
         }
