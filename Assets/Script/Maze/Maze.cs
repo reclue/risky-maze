@@ -226,6 +226,8 @@ namespace ru.lifanoff.Maze {
             if (!chunk.isDeadEnd || chunk.hasExitKey || chunk.hasExitDoor) return;
             if (rnd.Next(0, 100) > 32) return;
 
+            chunk.hasChest = true;
+
             MazePrefabID mazePrefabID = MazePrefabID.CHEST;
             int numnberRandomPrefab = mazePrefabContainer.GetRandomNumberPrefab(mazePrefabID);
 

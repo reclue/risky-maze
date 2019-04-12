@@ -141,6 +141,9 @@
         }
 
 
+        /// <summary>Есть ли сундук</summary>
+        public bool hasChest = false;
+
         /// <summary>Расположен ли в блоке ключ от выхода</summary>
         public bool hasExitKey = false;
 
