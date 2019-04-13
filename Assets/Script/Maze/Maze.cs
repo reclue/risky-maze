@@ -62,8 +62,9 @@ namespace ru.lifanoff.Maze {
                 PlaceFloors(chunk);
                 PlaceExitKey(chunk);
                 PlaceChestsInDeadEnd(chunk);
-                PlaceTraps(chunk);
             }
+
+            PlaceTraps();
         }
 
 
@@ -266,26 +267,48 @@ namespace ru.lifanoff.Maze {
         }
 
         /// <summary>Разместить префабы ловушек</summary>
-        /// <param name="chunk">Текущий блок лабиринта</param>
-        private void PlaceTraps(Chunk chunk) {
-            if (chunk.hasChest || chunk.isDeadEnd || chunk.hasExitKey || chunk.hasExitDoor) return;
-            if (chunk.hasTrap || chunk.countNeighbourTraps > 2) return;
-            if (rnd.Next(0, 100) > 15) return;
+        private void PlaceTraps() {
+            int countTraps = Convert.ToInt32(mazeStructure.sizeX * mazeStructure.sizeY * 0.23);
 
-            chunk.hasTrap = true;
+            { // countTraps не должен превышать количество доступных чанков
+                int countChunksForTraps = 0;
+                foreach (Chunk chunk in mazeStructure) {
+                    if (chunk.hasChest || chunk.isDeadEnd || chunk.hasExitKey || chunk.hasExitDoor) continue;
+                    if (chunk.hasTrap || chunk.countNeighbourTraps > 2) continue;
 
-            MazePrefabID mazePrefabID = MazePrefabID.TRAP;
-            int numnberRandomPrefab = mazePrefabContainer.GetRandomNumberPrefab(mazePrefabID);
+                    countChunksForTraps++;
 
-            GameObject cloningPrefab = mazePrefabContainer.prefabs[mazePrefabID][numnberRandomPrefab];
-            GameObject gameObjectTrap = Instantiate(cloningPrefab, transform) as GameObject;
+                    if (countChunksForTraps > countTraps) break;
+                }
 
-            Vector3 newPosition = Vector3.zero;
-            newPosition.x = chunk.x * chunkSize + chunkSize / 2f;
-            newPosition.z = chunk.y * chunkSize;
-            gameObjectTrap.transform.position = newPosition;
+                mazeStructure.Reset();
 
-            gameObjectTrap.SetActive(true);
+                if (countTraps > countChunksForTraps) countTraps = countChunksForTraps;
+            } // init countTraps
+
+            while (countTraps > 0) {
+                Chunk chunk = mazeStructure.GetRandomChunk();
+
+                if (chunk.hasChest || chunk.isDeadEnd || chunk.hasExitKey || chunk.hasExitDoor) continue;
+                if (chunk.hasTrap || chunk.countNeighbourTraps > 2) continue;
+
+                chunk.hasTrap = true;
+
+                MazePrefabID mazePrefabID = MazePrefabID.TRAP;
+                int numnberRandomPrefab = mazePrefabContainer.GetRandomNumberPrefab(mazePrefabID);
+
+                GameObject cloningPrefab = mazePrefabContainer.prefabs[mazePrefabID][numnberRandomPrefab];
+                GameObject gameObjectTrap = Instantiate(cloningPrefab, transform) as GameObject;
+
+                Vector3 newPosition = Vector3.zero;
+                newPosition.x = chunk.x * chunkSize + chunkSize / 2f;
+                newPosition.z = chunk.y * chunkSize;
+                gameObjectTrap.transform.position = newPosition;
+
+                gameObjectTrap.SetActive(true);
+
+                countTraps--;
+            }
         }
 
 
