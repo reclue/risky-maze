@@ -97,6 +97,19 @@
             }
         }
 
+        /// <summary>Количество ловушек по соседству</summary>
+        public int countNeighbourTraps {
+            get {
+                int count = 0;
+
+                if (hasLeftChunk && leftChunk.hasTrap) count++;
+                if (hasRightChunk && rightChunk.hasTrap) count++;
+                if (hasTopChunk && topChunk.hasTrap) count++;
+                if (hasBottomChunk && bottomChunk.hasTrap) count++;
+
+                return count;
+            }
+        }
 
         /// <summary>У блока есть все стены</summary>
         public bool hasAllWalls {

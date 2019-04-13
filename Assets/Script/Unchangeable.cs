@@ -31,9 +31,13 @@ namespace ru.lifanoff {
 
         #region Player
         public const float DISTANCE_PLAYER_RAYCAST = 2.05f;
-        public const int DEFAULT_COUNT_LIVES = 3;
-        public const int DEFAULT_COUNT_PEBBLES = 10;
         public const float SHOT_FORCE = 195f;
+        public const int DEFAULT_COUNT_PEBBLES_EASY = 6;
+        public const int DEFAULT_COUNT_PEBBLES_MEDIUM = 10;
+        public const int DEFAULT_COUNT_PEBBLES_HARD = 15;
+        public const int DEFAULT_COUNT_LIVES_EASY = 3;
+        public const int DEFAULT_COUNT_LIVES_MEDIUM = 5;
+        public const int DEFAULT_COUNT_LIVES_HARD = 8;
         #endregion
 
         #region Objects

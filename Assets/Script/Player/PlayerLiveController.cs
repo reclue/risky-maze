@@ -13,7 +13,7 @@ namespace ru.lifanoff.Player {
         [SerializeField] private Text livesText = null;
 
         /// <summary>Количество жизней</summary>
-        private int countLives = Unchangeable.DEFAULT_COUNT_LIVES;
+        private int countLives = Unchangeable.DEFAULT_COUNT_LIVES_EASY;
         /// <summary>Количество жизней</summary>
         public int CountLives {
             get {
@@ -33,9 +33,24 @@ namespace ru.lifanoff.Player {
 
         #region Unity events
         void Start() {
+            InitCountLives();
             UpdatePebbleText();
         }
         #endregion
+
+        private void InitCountLives() {
+            switch (GameController.Instance.difficulMode) {
+                case DifficultMode.EASY:
+                    countLives = Unchangeable.DEFAULT_COUNT_LIVES_EASY;
+                    break;
+                case DifficultMode.MEDIUM:
+                    countLives = Unchangeable.DEFAULT_COUNT_LIVES_MEDIUM;
+                    break;
+                case DifficultMode.HARD:
+                    countLives = Unchangeable.DEFAULT_COUNT_LIVES_HARD;
+                    break;
+            }
+        }
 
         private void UpdatePebbleText() {
             if (livesText == null) return;

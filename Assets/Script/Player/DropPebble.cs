@@ -17,7 +17,7 @@ namespace ru.lifanoff.Player {
         public bool canDrop = true;
 
         /// <summary>Количество камней</summary>
-        private int countPebbles = Unchangeable.DEFAULT_COUNT_PEBBLES;
+        private int countPebbles = Unchangeable.DEFAULT_COUNT_PEBBLES_EASY;
         /// <summary>Количество камней</summary>
         public int CountPebbles {
             get {
@@ -32,12 +32,27 @@ namespace ru.lifanoff.Player {
 
         #region Unity event
         void Start() {
+            InitCountPebbles();
             cameraPlayer = SecondaryFunctions.GetCameraPlayer();
             UpdatePebbleText();
         }
 
         void Update() => PressDropPebble();
         #endregion
+
+        private void InitCountPebbles() {
+            switch (GameController.Instance.difficulMode) {
+                case DifficultMode.EASY:
+                    countPebbles = Unchangeable.DEFAULT_COUNT_PEBBLES_EASY;
+                    break;
+                case DifficultMode.MEDIUM:
+                    countPebbles = Unchangeable.DEFAULT_COUNT_PEBBLES_MEDIUM;
+                    break;
+                case DifficultMode.HARD:
+                    countPebbles = Unchangeable.DEFAULT_COUNT_PEBBLES_HARD;
+                    break;
+            }
+        }
 
         private void UpdatePebbleText() {
             if (pebbleText == null) return;

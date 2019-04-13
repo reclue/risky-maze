@@ -268,7 +268,8 @@ namespace ru.lifanoff.Maze {
         /// <summary>Разместить префабы ловушек</summary>
         /// <param name="chunk">Текущий блок лабиринта</param>
         private void PlaceTraps(Chunk chunk) {
-            if (chunk.hasChest || chunk.isDeadEnd || chunk.hasExitKey || chunk.hasExitDoor || chunk.hasTrap) return;
+            if (chunk.hasChest || chunk.isDeadEnd || chunk.hasExitKey || chunk.hasExitDoor) return;
+            if (chunk.hasTrap || chunk.countNeighbourTraps > 2) return;
             if (rnd.Next(0, 100) > 15) return;
 
             chunk.hasTrap = true;
