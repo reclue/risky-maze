@@ -12,6 +12,7 @@ TagManager:
   - MessageToPlayer
   - Pebble
   - UIKeyIcon
+  - Trap
   layers:
   - Default
   - TransparentFX

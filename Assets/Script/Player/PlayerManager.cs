@@ -16,9 +16,35 @@ namespace ru.lifanoff {
 
 
         /// <summary>Можети ли игрок передвигаться</summary>
-        public bool canMoving;
+        public bool canMoving = true;
         /// <summary>Есть ли у игрока ключ от выхода</summary>
-        public bool hasExitKey;
+        public bool hasExitKey = false;
+
+        /// <summary>Находится ли игрок на поверхности</summary>
+        public bool isGrounded = false;
+        /// <summary>Бежит ли игрок</summary>
+        public bool isRunning = false;
+        /// <summary>В прыжке ли игрок</summary>
+        public bool isJumping = false;
+        /// <summary>Передвигается ли игрок медленно</summary>
+        public bool isSlowdown = false;
+
+        /// <summary>Скорость шага игрока при замедлении</summary>
+        public float speedSlowdown = 1f;
+        /// <summary>Скорость обычного шага игрока</summary>
+        public float speedWalking = 3f;
+        /// <summary>Скорость бега игрока</summary>
+        public float speedRunning = 7f;
+
+        /// <summary>Высота прыжка</summary>
+        public float jumpHeight = 1.15f;
+        /// <summary>Значение гравитации</summary>
+        public float gravity = 0f;
+
+        /// <summary>Текущая скорость игрока</summary>
+        public float currentSpeed = 0f;
+        /// <summary>Текущий вектор движения игрока<summary>
+        public Vector3 currentMovement;
 
         /// <summary>Единственный экземпляр класса <seealso cref="PlayerManager"/></summary>
         public static PlayerManager Instance { get; private set; }
@@ -30,8 +56,8 @@ namespace ru.lifanoff {
         }
 
         private PlayerManager() {
-            canMoving = true;
-            hasExitKey = false;
+            gravity = Physics.gravity.y;
+            currentMovement = Vector3.zero;
 
             InitMessageToPlayer();
         }

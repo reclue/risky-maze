@@ -8,64 +8,41 @@ namespace ru.lifanoff.Player {
     [RequireComponent(typeof(CharacterController))]
     public class PlayerMovement : MonoBehaviour {
 
-        /// <summary>Скорость обычного шага игрока</summary>
-        private float speedWalking = 3f;
-        /// <summary>Скорость бега игрока</summary>
-        private float speedRunning = 7f;
-
-        /// <summary>Текущая скорость игрока</summary>
-        private float currentSpeed = 0f;
-        /// <summary>Текущая скорость игрока</summary>
-        public float CurrentSpeed {
-            get {
-                return currentSpeed;
-            }
-        }
-
-        /// <summary>Высота прыжка</summary>
-        private float jumpHeight = 1.15f;
-        /// <summary>Значение гравитации</summary>
-        private float gravity;
-
-        /// <summary>Находится ли игрок на поверхности</summary>
-        private bool isGrounded = false;
-        /// <summary>Бежит ли игрок</summary>
-        private bool isRunning = false;
-        /// <summary>В прыжке ли игрок</summary>
-        private bool isJumping = false;
-
-        /// <summary>Текущий вектор движения игрока<summary>
-        private Vector3 currentMovement;
-        /// <summary>Текущий кватернион игрока для вращения<summary>
-        private Quaternion currentRotation;
-
         /// <summary>Камера игрока</summary>
-        private Camera cameraPlayer;
+        private Camera cameraPlayer = null;
         /// <summary>Компонент CapsuleCollider прикрепленный к игроку</summary>
-        private CharacterController characterController;
+        private CharacterController characterController = null;
+
+        private PlayerManager pm = null;
+        private SoundController soundController = null;
 
         #region Unity Events
         void Start() {
+            pm = PlayerManager.Instance;
+            soundController = SoundController.Instance;
+
             characterController = GetComponent<CharacterController>();
             cameraPlayer = SecondaryFunctions.GetCameraPlayer();
 
-            gravity = Physics.gravity.y;
-
-            currentMovement = Vector3.zero;
             PlayerRotation();
         }
 
         void Update() {
-            if (PlayerManager.Instance.canMoving) {
-                isGrounded = IsGrounded();
-                isRunning = Input.GetButton(Unchangeable.RUN_INPUT);
-                currentSpeed = isRunning ? speedRunning : speedWalking;
+            if (pm.canMoving) {
+                pm.isGrounded = IsGrounded();
+                pm.isRunning = Input.GetButton(Unchangeable.RUN_INPUT);
 
-                if (!isJumping) {
-                    if (isRunning) {
-                        SoundController.Instance.PlayRuningPlayer();
+                if (pm.isSlowdown) {
+                    pm.currentSpeed = pm.speedSlowdown;
+                } else {
+                    pm.currentSpeed = pm.isRunning ? pm.speedRunning : pm.speedWalking;
+                }
+
+                if (!pm.isJumping) {
+                    if (pm.isRunning) {
+                        soundController.PlayRuningPlayer();
                     } else {
-                        SoundController.Instance.PlayWalkingPlayer();
+                        soundController.PlayWalkingPlayer();
                     }
                 }
 
@@ -73,11 +50,11 @@ namespace ru.lifanoff.Player {
                 PlayerJump();
                 PlayerRotation();
 
-                if (currentMovement.x == 0 && currentMovement.z == 0) {
-                    SoundController.Instance.StopPlayerAudioSource();
+                if (pm.currentMovement.x == 0 && pm.currentMovement.z == 0) {
+                    soundController.StopPlayerAudioSource();
                 }
 
-                characterController.Move(currentMovement * Time.deltaTime);
+                characterController.Move(pm.currentMovement * Time.deltaTime);
             }
         }
         #endregion
@@ -90,11 +67,11 @@ namespace ru.lifanoff.Player {
 
             Vector3 directionMovement = new Vector3(horizontal, 0f, vertical);
 
-            if (isJumping) {
-                AirControl(directionMovement, ref currentMovement);
-                currentMovement.y += 2f * gravity * Time.deltaTime;
+            if (pm.isJumping) {
+                AirControl(directionMovement, ref pm.currentMovement);
+                pm.currentMovement.y += 2f * pm.gravity * Time.deltaTime;
             } else {
-                currentMovement = MakeCurrentMovement(directionMovement);
+                pm.currentMovement = MakeCurrentMovement(directionMovement);
             }//fi isJumping
 
             LimitFallingSpeed();
@@ -103,18 +80,18 @@ namespace ru.lifanoff.Player {
 
         /// <summary>Прыжок игрока</summary>
         private void PlayerJump() {
-            if (isJumping) {
-                if (isGrounded) {
-                    isJumping = false;
-                    currentMovement.y = 0f;
-                    SoundController.Instance.PlayEndJumpPlayer();
+            if (pm.isJumping) {
+                if (pm.isGrounded) {
+                    pm.isJumping = false;
+                    pm.currentMovement.y = 0f;
+                    soundController.PlayEndJumpPlayer();
                 }//fi
             } else {
                 if (Input.GetButton(Unchangeable.JUMP_INPUT)) {
-                    if (isGrounded) {
-                        currentMovement.y = Mathf.Sqrt(-4f * gravity * jumpHeight);
-                        isJumping = true;
-                        SoundController.Instance.PlayStartJumpPlayer(40);
+                    if (pm.isGrounded) {
+                        pm.currentMovement.y = Mathf.Sqrt(-4f * pm.gravity * pm.jumpHeight);
+                        pm.isJumping = true;
+                        soundController.PlayStartJumpPlayer(40);
                     }//fi
                 }//fi
             }//fi isJumping
@@ -146,12 +123,12 @@ namespace ru.lifanoff.Player {
         /// <param name="directionMovement">Предлагаемое направаление движения</param>
         private Vector3 MakeCurrentMovement(Vector3 directionMovement) {
             directionMovement.Normalize();
-            directionMovement = directionMovement * currentSpeed;
+            directionMovement = directionMovement * pm.currentSpeed;
 
-            if (isGrounded) {
-                directionMovement.y = currentMovement.y;
+            if (pm.isGrounded) {
+                directionMovement.y = pm.currentMovement.y;
             } else { // направление движения в случае падения
-                directionMovement.y += currentMovement.y + gravity * Time.fixedDeltaTime;
+                directionMovement.y += pm.currentMovement.y + pm.gravity * Time.fixedDeltaTime;
             }
 
             return transform.TransformDirection(directionMovement);
@@ -163,11 +140,11 @@ namespace ru.lifanoff.Player {
             float mediumLimit = -15f;
             float stepFalling = 1f;
 
-            if (!isGrounded) {
-                if (currentMovement.y < minLimit) {
-                    currentMovement.y = minLimit;
-                } else if (currentMovement.y < mediumLimit) {
-                    currentMovement.y -= stepFalling;
+            if (!pm.isGrounded) {
+                if (pm.currentMovement.y < minLimit) {
+                    pm.currentMovement.y = minLimit;
+                } else if (pm.currentMovement.y < mediumLimit) {
+                    pm.currentMovement.y -= stepFalling;
                 }
             }
         }

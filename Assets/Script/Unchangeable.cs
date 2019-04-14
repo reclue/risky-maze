@@ -21,6 +21,7 @@ namespace ru.lifanoff {
         public const string GAME_CONTROLLER_TAG = "GameController";
         public const string SOUND_CONTROLLER_TAG = "SoundController";
         public const string MAZE_TAG = "Maze";
+        public const string TRAP_TAG = "Trap";
         public const string PEBBLE_TAG = "Pebble";
         #endregion
 

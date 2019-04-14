@@ -17,15 +17,17 @@ namespace ru.lifanoff.Trap {
         }
 
         void OnTriggerEnter(Collider other) {
-            if (!other.transform.CompareTag(Unchangeable.PLAYER_TAG) &&
-                !other.transform.CompareTag(Unchangeable.PEBBLE_TAG)) {
+            if (!other.CompareTag(Unchangeable.PLAYER_TAG) &&
+                !other.CompareTag(Unchangeable.PEBBLE_TAG) &&
+                !other.CompareTag(Unchangeable.TRAP_TAG)) {
                 isTrigger = true;
             }
         }
 
         void OnCollisionEnter(Collision collision) {
             if (!collision.transform.CompareTag(Unchangeable.PLAYER_TAG) &&
-                !collision.transform.CompareTag(Unchangeable.PEBBLE_TAG)) {
+                !collision.transform.CompareTag(Unchangeable.PEBBLE_TAG) &&
+                !collision.transform.CompareTag(Unchangeable.TRAP_TAG)) {
                 isTrigger = true;
             }
         }
