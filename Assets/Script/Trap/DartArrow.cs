@@ -59,10 +59,10 @@ namespace ru.lifanoff.Trap {
 
             Rigidbody rb = GetComponent<Rigidbody>();
 
-            float speed = 15f;
+            float speed = .15f;
 
             while (!isTrigger) {
-                rb.MovePosition(transform.position + direction * speed * Time.deltaTime);
+                rb.MovePosition(transform.position + direction * speed);
                 yield return null;
             }
 
