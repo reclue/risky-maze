@@ -304,6 +304,11 @@ namespace ru.lifanoff.Maze {
             return countChunksForTraps;
         }
 
+        private int getCountTraps() {
+            return mazePrefabContainer.prefabs[MazePrefabID.TRAP].Count +
+                mazePrefabContainer.prefabs[MazePrefabID.TRAP_WALL].Count;
+        }
+
         /// <summary>Разместить префабы ловушек</summary>
         private void PlaceTraps() {
             const double percentOfTraps = 0.23;
@@ -321,18 +326,14 @@ namespace ru.lifanoff.Maze {
                 chunk.hasTrap = true;
 
                 MazePrefabID mazePrefabID = MazePrefabID.TRAP;
-                switch (rnd.Next(0, 2)) {
-                    case 0:
+                if (rnd.Next(0, getCountTraps()) < mazePrefabContainer.prefabs[MazePrefabID.TRAP_WALL].Count) {
+                    if (chunk.hasAnyWalls) {
+                        mazePrefabID = MazePrefabID.TRAP_WALL;
+                    } else {
                         mazePrefabID = MazePrefabID.TRAP;
-                        break;
-                    case 1:
-                        if (chunk.hasAnyWalls) {
-                            mazePrefabID = MazePrefabID.TRAP_WALL;
-                        } else {
-                            mazePrefabID = MazePrefabID.TRAP;
-                        }
-
-                        break;
+                    }
+                } else {
+                    mazePrefabID = MazePrefabID.TRAP;
                 }
 
                 int numnberRandomPrefab = mazePrefabContainer.GetRandomNumberPrefab(mazePrefabID);
