@@ -1,33 +1,15 @@
 fileFormatVersion: 2
-guid: c365f544699caed408d8b9eb1497d659
+guid: 079dc1d65c6e6214a8bbc53981380de2
 ModelImporter:
   serializedVersion: 23
   fileIDToRecycleName:
     100000: //RootNode
-    100002: Trap_02_Blade
-    100004: Trap_02_Stick
     400000: //RootNode
-    400002: Trap_02_Blade
-    400004: Trap_02_Stick
-    2100000: Trap_02_Stick_Mat
-    2100002: Trap_02_Blade_Mat
-    2300000: Trap_02_Blade
-    2300002: Trap_02_Stick
-    3300000: Trap_02_Blade
-    3300002: Trap_02_Stick
-    4300000: Trap_02_Stick
-    4300002: Trap_02_Blade
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Trap_02_Blade_Mat
-    second: {fileID: 2100000, guid: 091ef1ec1cd64b94c8f0e55ddf082b44, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Trap_02_Stick_Mat
-    second: {fileID: 2100000, guid: 09ebbbc27ffdfc644a12965a1b3c1b0f, type: 2}
+    2100000: Ceil_Mat
+    2300000: //RootNode
+    3300000: //RootNode
+    4300000: Ceil
+  externalObjects: {}
   materials:
     importMaterials: 1
     materialName: 0

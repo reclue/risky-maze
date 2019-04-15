@@ -136,6 +136,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetUp: {x: 0, y: 3.5, z: 0}
   targetDown: {x: 0, y: 0.5, z: 0}
+  maxRndSpeed: 10
+  maxRndSleepSeconds: 3
 --- !u!1 &3861909145309293915
 GameObject:
   m_ObjectHideFlags: 0
@@ -194,8 +196,8 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 09ebbbc27ffdfc644a12965a1b3c1b0f, type: 2}
   - {fileID: 2100000, guid: 091ef1ec1cd64b94c8f0e55ddf082b44, type: 2}
+  - {fileID: 2100000, guid: 09ebbbc27ffdfc644a12965a1b3c1b0f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

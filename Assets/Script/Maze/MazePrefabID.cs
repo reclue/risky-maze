@@ -12,6 +12,8 @@
         FLOOR,
         /// <summary>ID для префабов стен</summary>
         WALL,
+        /// <summary>ID для префабов стен</summary>
+        CEIL,
         /// <summary>ID для префабов сундуков</summary>
         CHEST,
         /// <summary>ID для префабов ловушек</summary>

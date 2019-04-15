@@ -24,6 +24,8 @@ namespace ru.lifanoff.Maze {
 
         /// <summary>Коллайдер для пола</summary>
         private BoxCollider floorBoxCollider;
+        /// <summary>Коллайдер для потолка</summary>
+        private BoxCollider ceilBoxCollider;
         /// <summary></summary>
         private MazePrefabContainer mazePrefabContainer;
 
@@ -50,6 +52,7 @@ namespace ru.lifanoff.Maze {
             PlacePrefabsOnScene();
 
             AppendColliderFloor();
+            AppendColliderCeil();
 
             RandomPlayerPosition();
         }
@@ -60,6 +63,7 @@ namespace ru.lifanoff.Maze {
             foreach (Chunk chunk in mazeStructure) {
                 PlaceWalls(chunk);
                 PlaceFloors(chunk);
+                PlaceCeils(chunk);
                 PlaceExitKey(chunk);
                 PlaceChestsInDeadEnd(chunk);
             }
@@ -179,6 +183,25 @@ namespace ru.lifanoff.Maze {
 
             Vector3 newPosition = Vector3.zero;
             newPosition.x = chunk.x * chunkSize + chunkSize / 2f;
+            newPosition.z = chunk.y * chunkSize;
+
+            gameObjectFloor.transform.position = newPosition;
+            gameObjectFloor.SetActive(true);
+        }
+
+        /// <summary>Разместить префабы потолка</summary>
+        /// <param name="chunk">Текущий блок лабиринта</param>
+        private void PlaceCeils(Chunk chunk) {
+            MazePrefabID mazePrefabID = MazePrefabID.CEIL;
+            int numnberRandomPrefab = mazePrefabContainer.GetRandomNumberPrefab(mazePrefabID);
+
+            GameObject cloningPrefab = mazePrefabContainer.prefabs[mazePrefabID][numnberRandomPrefab];
+
+            GameObject gameObjectFloor = Instantiate(cloningPrefab, transform) as GameObject;
+
+            Vector3 newPosition = Vector3.zero;
+            newPosition.x = chunk.x * chunkSize + chunkSize / 2f;
+            newPosition.y = chunkSize;
             newPosition.z = chunk.y * chunkSize;
 
             gameObjectFloor.transform.position = newPosition;
@@ -366,7 +389,7 @@ namespace ru.lifanoff.Maze {
 
         /// <summary>Добавить и настроить общий коллайдер для всех полов лабиринта</summary>
         private void AppendColliderFloor() {
-            floorBoxCollider = this.gameObject.AddComponent<BoxCollider>();
+            floorBoxCollider = gameObject.AddComponent<BoxCollider>();
 
             Vector3 newSize = Vector3.zero;
             newSize.x = mazeStructure.sizeX * chunkSize;
@@ -383,6 +406,27 @@ namespace ru.lifanoff.Maze {
             floorBoxCollider.size = newSize;
             floorBoxCollider.center = newCenter;
             floorBoxCollider.enabled = true;
+        }
+
+        /// <summary>Добавить и настроить общий коллайдер для всех потолков лабиринта</summary>
+        private void AppendColliderCeil() {
+            ceilBoxCollider = gameObject.AddComponent<BoxCollider>();
+
+            Vector3 newSize = Vector3.zero;
+            newSize.x = mazeStructure.sizeX * chunkSize;
+            newSize.y = .05f;
+            newSize.z = mazeStructure.sizeY * chunkSize;
+
+            Vector3 newCenter = Vector3.zero;
+            newCenter.x = newSize.x / 2f;
+            newCenter.y = 4.025f;
+            newCenter.z = (newSize.z / 2f) - (chunkSize / 2f);
+
+
+            ceilBoxCollider.isTrigger = false;
+            ceilBoxCollider.size = newSize;
+            ceilBoxCollider.center = newCenter;
+            ceilBoxCollider.enabled = true;
         }
 
 

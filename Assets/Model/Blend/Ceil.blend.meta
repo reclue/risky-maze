@@ -1,38 +1,15 @@
 fileFormatVersion: 2
-guid: c365f544699caed408d8b9eb1497d659
+guid: 75d9d3ec9bc617d48965749aa84f9124
 ModelImporter:
   serializedVersion: 23
   fileIDToRecycleName:
-    100000: //RootNode
-    100002: Trap_02_Blade
-    100004: Trap_02_Stick
-    400000: //RootNode
-    400002: Trap_02_Blade
-    400004: Trap_02_Stick
-    2100000: Trap_02_Stick_Mat
-    2100002: Trap_02_Blade_Mat
-    2300000: Trap_02_Blade
-    2300002: Trap_02_Stick
-    3300000: Trap_02_Blade
-    3300002: Trap_02_Stick
-    4300000: Trap_02_Stick
-    4300002: Trap_02_Blade
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Trap_02_Blade_Mat
-    second: {fileID: 2100000, guid: 091ef1ec1cd64b94c8f0e55ddf082b44, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Trap_02_Stick_Mat
-    second: {fileID: 2100000, guid: 09ebbbc27ffdfc644a12965a1b3c1b0f, type: 2}
+    2186277476908879412: ImportLogs
+  externalObjects: {}
   materials:
     importMaterials: 1
     materialName: 0
     materialSearch: 1
-    materialLocation: 0
+    materialLocation: 1
   animations:
     legacyGenerateAnimations: 4
     bakeSimulation: 0
@@ -64,8 +41,8 @@ ModelImporter:
     useSRGBMaterialColor: 1
     importVisibility: 1
     importBlendShapes: 1
-    importCameras: 0
-    importLights: 0
+    importCameras: 1
+    importLights: 1
     swapUVChannels: 0
     generateSecondaryUV: 0
     useFileUnits: 1
@@ -89,7 +66,7 @@ ModelImporter:
     legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
     blendShapeNormalImportMode: 1
     normalSmoothingSource: 0
-  importAnimation: 0
+  importAnimation: 1
   copyAvatar: 0
   humanDescription:
     serializedVersion: 2
@@ -107,7 +84,7 @@ ModelImporter:
     hasExtraRoot: 0
     skeletonHasParents: 1
   lastHumanDescriptionAvatarSource: {instanceID: 0}
-  animationType: 0
+  animationType: 2
   humanoidOversampling: 1
   additionalBone: 0
   userData: 
