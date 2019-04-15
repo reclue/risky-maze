@@ -32,7 +32,8 @@ Transform:
   m_LocalRotation: {x: 0.000000021855694, y: 0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 3.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 5705039339357126031}
   m_Father: {fileID: 5952234714846632127}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -120,8 +121,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4428c1c8a5f58947849360ada3176e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minSpeed: 300
-  maxSpeed: 400
+  minSpeed: 500
+  maxSpeed: 600
 --- !u!114 &491567686691540714
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -239,8 +240,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5952234714846632127}
-  - component: {fileID: 8203841655968928375}
-  - component: {fileID: 949129558103330747}
   m_Layer: 0
   m_Name: Trap_02
   m_TagString: Untagged
@@ -264,25 +263,57 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8203841655968928375
+--- !u!1 &6933149127463368931
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5705039339357126031}
+  - component: {fileID: 2858676082751079220}
+  - component: {fileID: 5590814915713282914}
+  m_Layer: 0
+  m_Name: Sound
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5705039339357126031
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6933149127463368931}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 3284290154258082323}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2858676082751079220
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5409810010435585739}
+  m_GameObject: {fileID: 6933149127463368931}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 35005e83818f18047a1eb7dad16b0056, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!82 &949129558103330747
+--- !u!82 &5590814915713282914
 AudioSource:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5409810010435585739}
+  m_GameObject: {fileID: 6933149127463368931}
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
@@ -296,7 +327,7 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 1
-  MinDistance: 3
+  MinDistance: 1.5
   MaxDistance: 7
   Pan2D: 0
   rolloffMode: 1
