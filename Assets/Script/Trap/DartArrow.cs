@@ -50,7 +50,9 @@ namespace ru.lifanoff.Trap {
                 if (Physics.Raycast(ray, out currentHit, distance)) {
                     if (currentHit.transform.CompareTag(Unchangeable.PLAYER_TAG) ||
                         currentHit.transform.CompareTag(Unchangeable.PEBBLE_TAG)) {
+                        // звук щелчка
                         yield return new WaitForSeconds(0.5f - waitSecond);
+                        // звук полета
                         StartCoroutine(MoveArrow());
                         break;
                     }
@@ -74,10 +76,14 @@ namespace ru.lifanoff.Trap {
                 yield return null;
             }
 
+            // звук попадания
+
             Destroy(GetComponent<DamagePlayer>());
             Destroy(GetComponent<DartArrow>());
             Destroy(GetComponent<Collider>());
             Destroy(GetComponent<Rigidbody>());
+            
+            // уничтожить звуки
         }
 
     }
