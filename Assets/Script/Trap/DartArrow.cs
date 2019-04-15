@@ -17,6 +17,10 @@ namespace ru.lifanoff.Trap {
         }
 
         void OnTriggerEnter(Collider other) {
+            if (other.CompareTag(Unchangeable.ARROW_TRAP_TAG)) {
+                Destroy(gameObject);
+            }
+
             if (!other.CompareTag(Unchangeable.PLAYER_TAG) &&
                 !other.CompareTag(Unchangeable.PEBBLE_TAG) &&
                 !other.CompareTag(Unchangeable.TRAP_TAG)) {
@@ -25,6 +29,10 @@ namespace ru.lifanoff.Trap {
         }
 
         void OnCollisionEnter(Collision collision) {
+            if (collision.transform.CompareTag(Unchangeable.ARROW_TRAP_TAG)) {
+                Destroy(gameObject);
+            }
+
             if (!collision.transform.CompareTag(Unchangeable.PLAYER_TAG) &&
                 !collision.transform.CompareTag(Unchangeable.PEBBLE_TAG) &&
                 !collision.transform.CompareTag(Unchangeable.TRAP_TAG)) {
