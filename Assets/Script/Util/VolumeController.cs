@@ -12,7 +12,7 @@ namespace ru.lifanoff.Util {
 
         private AudioSource audioSource = null;
 
-        void Start() {
+        void Awake() {
             audioSource = GetComponent<AudioSource>();
             audioSource.volume = SaveManager.Instance.optionsManager.musicOptions.musicVolume;
 
