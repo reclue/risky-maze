@@ -18,6 +18,10 @@ namespace ru.lifanoff.Trap {
             if (audioSource == null) return;
 
             if (hitPebbleSounds != null && hitPebbleSounds.Length > 1) {
+                if (audioSource.isPlaying) {
+                    audioSource.Stop();
+                }
+
                 audioSource.clip = hitPebbleSounds[rnd.Next(0, hitPebbleSounds.Length)];
             }
 
