@@ -50,6 +50,8 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 8ab0d8d8caa69b84ebf4b3db93699eb7, type: 3}
   commonPickupSound: {fileID: 8300000, guid: 6644bfdf99f4a2e4e8193834b81179d5, type: 3}
   exitKeyPickupSound: {fileID: 8300000, guid: 2a98544e7a392e74f99d9535726146a3, type: 3}
+  gamePlayerSlowdownSound: {fileID: 8300000, guid: 323abc543041223479fba12ef97627ec,
+    type: 3}
   gamePlayerWalkingSound: {fileID: 8300000, guid: 1428393920adb5c4d9d6cbcfc4bb28a6,
     type: 3}
   gamePlayerRunningSound: {fileID: 8300000, guid: ec20d4917e1d2564699e2ec172749e2f,

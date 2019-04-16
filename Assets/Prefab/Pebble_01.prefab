@@ -220,6 +220,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   audioSource: {fileID: 1855363851909349896}
+  hitPebbleSlowdownSounds: {fileID: 8300000, guid: 94e673869cec1554591ef8308df16537,
+    type: 3}
   hitPebbleSounds:
   - {fileID: 8300000, guid: 4054da74e6570904e90a31d3aa330323, type: 3}
   - {fileID: 8300000, guid: fa230293db994fa49a43758c354ea550, type: 3}

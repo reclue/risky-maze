@@ -21,6 +21,8 @@ namespace ru.lifanoff {
         [SerializeField] private AudioClip exitKeyPickupSound = null;
 
         [Header("Озвучка игрока")]
+        [Tooltip("Озвучка игрока, идущего по грязи")]
+        [SerializeField] private AudioClip gamePlayerSlowdownSound = null;
         [Tooltip("Озвучка походки игрока")]
         [SerializeField] private AudioClip gamePlayerWalkingSound = null;
         [Tooltip("Озвучка бега игрока")]
@@ -178,6 +180,15 @@ namespace ru.lifanoff {
             oneShotAudioSource.PlayOneShot(audioClip);
         }
 
+        /// <summary>Проиграить звук игрока, идущего по грязи</summary>
+        public void PlaySlowdownPlayer() {
+            if (playerAudioSource.clip != gamePlayerSlowdownSound) {
+                StopPlayerAudioSource();
+                playerAudioSource.clip = gamePlayerSlowdownSound;
+                playerAudioSource.Play();
+            }
+        }
+
         /// <summary>Проиграить звук идущего игрока</summary>
         public void PlayWalkingPlayer() {
             if (playerAudioSource.clip != gamePlayerWalkingSound) {
@@ -188,7 +199,7 @@ namespace ru.lifanoff {
         }
 
         /// <summary>Проиграить звук бега игрока</summary>
-        public void PlayRuningPlayer() {
+        public void PlayRunningPlayer() {
             if (playerAudioSource.clip != gamePlayerRunningSound) {
                 StopPlayerAudioSource();
                 playerAudioSource.clip = gamePlayerRunningSound;

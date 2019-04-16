@@ -41,10 +41,14 @@ namespace ru.lifanoff.Player {
                 }
 
                 if (!pm.isJumping) {
-                    if (pm.isRunning) {
-                        soundController.PlayRuningPlayer();
+                    if (pm.isSlowdown) {
+                        soundController.PlaySlowdownPlayer();
                     } else {
-                        soundController.PlayWalkingPlayer();
+                        if (pm.isRunning) {
+                            soundController.PlayRunningPlayer();
+                        } else {
+                            soundController.PlayWalkingPlayer();
+                        }
                     }
                 }
 
