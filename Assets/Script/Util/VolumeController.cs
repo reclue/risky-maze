@@ -14,10 +14,14 @@ namespace ru.lifanoff.Util {
 
         void Start() {
             audioSource = GetComponent<AudioSource>();
+            audioSource.volume = SaveManager.Instance.optionsManager.musicOptions.musicVolume;
+
             StartCoroutine(CheckVolume());
         }
 
         private IEnumerator CheckVolume() {
+            audioSource.volume = SaveManager.Instance.optionsManager.musicOptions.musicVolume;
+
             while (audioSource != null && audioSource.clip != null) {
                 if (PauseController.isPaused) {
                     if (audioSource.isPlaying) {

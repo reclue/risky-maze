@@ -12,6 +12,7 @@ namespace ru.lifanoff {
         /// <summary>Отображаемая панель во время паузы</summary>
         [SerializeField] private RectTransform pausePanel;
 
+        private SoundController soundController = null;
 
         #region Unity events
         void Start() {
@@ -21,6 +22,8 @@ namespace ru.lifanoff {
 
             isPaused = false;
             pausePanel.gameObject.SetActive(isPaused);
+
+            soundController = SoundController.Instance;
         }
 
         void Update() {
@@ -38,10 +41,13 @@ namespace ru.lifanoff {
 
             pausePanel.gameObject.SetActive(isPaused);
 
+
             if (isPaused) {
+                soundController.PausePlayerAudioSource();
                 Time.timeScale = Unchangeable.PAUSE_TIMESCALE;
             } else {
                 Time.timeScale = Unchangeable.DEFAULT_TIMESCALE;
+                soundController.UnPausePlayerAudioSource();
             }
 
         }

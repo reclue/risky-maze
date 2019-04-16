@@ -17,6 +17,7 @@ namespace ru.lifanoff.Exit {
         /// </summary>
         public void Use() {
             if (PlayerManager.Instance.hasExitKey) {
+                SoundController.Instance.StopPlayerAudioSource();
                 GameController.Instance.GoToNextScene(Unchangeable.RESULT_SCENE_NAME);
             } else {
                 PlayerManager.Instance.SendMessageToPlayer(NEED_KEY_MESSAGE);

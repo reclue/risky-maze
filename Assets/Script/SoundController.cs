@@ -73,6 +73,10 @@ namespace ru.lifanoff {
             Instance.InitSettings();
         }
 
+        void Start() {
+            Instance.InitSettings();
+        }
+
         void Update() {
             if (GameController.Instance.currentSceneName == Unchangeable.GAME_SCENE_NAME) {
                 if (Instance.musicAudioSource.clip == commonBackgroundMusic) {
@@ -211,6 +215,18 @@ namespace ru.lifanoff {
             if (playerAudioSource.isPlaying) {
                 playerAudioSource.clip = null;
                 playerAudioSource.Stop();
+            }
+        }
+
+        public void PausePlayerAudioSource() {
+            if (playerAudioSource.isPlaying) {
+                playerAudioSource.Pause();
+            }
+        }
+
+        public void UnPausePlayerAudioSource() {
+            if (!playerAudioSource.isPlaying) {
+                playerAudioSource.UnPause();
             }
         }
         #endregion Player Sounds
