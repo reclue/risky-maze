@@ -33,7 +33,22 @@ ModelImporter:
     4300004: "Ball\u0412estroyer_FixedChain"
     4300006: "Ball\u0412estroyer_SpringChain"
     4300008: "Ball\u0412estroyer"
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: "Ball\u0412estroyer_Mat_01"
+    second: {fileID: 2100000, guid: 98743120f00c7174c84d41c8b7f66682, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: "Ball\u0412estroyer_Mat_02"
+    second: {fileID: 2100000, guid: 5d1758148b4c18145b93ac7dbf32c0b9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: "Ball\u0412estroyer_Mat_03"
+    second: {fileID: 2100000, guid: be97d645819645d4c8f03e96c97daa18, type: 2}
   materials:
     importMaterials: 1
     materialName: 0

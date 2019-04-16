@@ -10,6 +10,12 @@ namespace ru.lifanoff.Trap {
 
         [SerializeField] private Transform raytraceTransform = null;
 
+        [Header("Озвучка")]
+        [SerializeField] private AudioSource audioSource = null;
+        [SerializeField] private AudioClip clickArrowSound = null;
+        [SerializeField] private AudioClip flyArrowSound = null;
+        [SerializeField] private AudioClip hitArrowSound = null;
+
         private bool isTrigger = false;
 
         void Start() {
@@ -23,7 +29,8 @@ namespace ru.lifanoff.Trap {
 
             if (!other.CompareTag(Unchangeable.PLAYER_TAG) &&
                 !other.CompareTag(Unchangeable.PEBBLE_TAG) &&
-                !other.CompareTag(Unchangeable.TRAP_TAG)) {
+                !other.CompareTag(Unchangeable.TRAP_TAG) &&
+                !other.CompareTag(Unchangeable.EXIT_KEY_TAG)) {
                 isTrigger = true;
             }
         }
@@ -35,7 +42,8 @@ namespace ru.lifanoff.Trap {
 
             if (!collision.transform.CompareTag(Unchangeable.PLAYER_TAG) &&
                 !collision.transform.CompareTag(Unchangeable.PEBBLE_TAG) &&
-                !collision.transform.CompareTag(Unchangeable.TRAP_TAG)) {
+                !collision.transform.CompareTag(Unchangeable.TRAP_TAG) &&
+                !collision.transform.CompareTag(Unchangeable.EXIT_KEY_TAG)) {
                 isTrigger = true;
             }
         }
@@ -50,9 +58,13 @@ namespace ru.lifanoff.Trap {
                 if (Physics.Raycast(ray, out currentHit, distance)) {
                     if (currentHit.transform.CompareTag(Unchangeable.PLAYER_TAG) ||
                         currentHit.transform.CompareTag(Unchangeable.PEBBLE_TAG)) {
-                        // звук щелчка
+                        audioSource.clip = clickArrowSound;
+                        audioSource.Play();
                         yield return new WaitForSeconds(0.5f - waitSecond);
-                        // звук полета
+                        audioSource.Stop();
+                        audioSource.clip = flyArrowSound;
+                        audioSource.loop = true;
+                        audioSource.Play();
                         StartCoroutine(MoveArrow());
                         break;
                     }
@@ -76,14 +88,24 @@ namespace ru.lifanoff.Trap {
                 yield return null;
             }
 
-            // звук попадания
-
             Destroy(GetComponent<DamagePlayer>());
-            Destroy(GetComponent<DartArrow>());
             Destroy(GetComponent<Collider>());
             Destroy(GetComponent<Rigidbody>());
-            
-            // уничтожить звуки
+
+            audioSource.Stop();
+            audioSource.clip = hitArrowSound;
+            audioSource.loop = false;
+            audioSource.Play();
+
+            while (audioSource.isPlaying) {
+                yield return new WaitForSeconds(0.1f);
+            }
+
+            foreach (Transform child in transform) {
+                Destroy(child.gameObject);
+            }
+
+            Destroy(GetComponent<DartArrow>());
         }
 
     }

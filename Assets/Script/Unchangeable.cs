@@ -24,6 +24,7 @@ namespace ru.lifanoff {
         public const string TRAP_TAG = "Trap";
         public const string ARROW_TRAP_TAG = "ArrowTrap";
         public const string PEBBLE_TAG = "Pebble";
+        public const string EXIT_KEY_TAG = "ExitKey";
         #endregion
 
         #region Layers
