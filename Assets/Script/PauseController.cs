@@ -55,17 +55,20 @@ namespace ru.lifanoff {
         #region реакция на нажатия кнопок в меню паузы
         /// <summary>Вернуться в игру из меню паузы</summary>
         public void OnResumeClick() {
+            SoundController.Instance.PlayClickButton();
             PauseSwitcher();
         }
 
         /// <summary>Выйти в главное меню игры</summary>
         public void OnMainMenuClick() {
+            SoundController.Instance.PlayClickButton();
             PauseSwitcher();
             GameController.Instance.GoToNextScene(Unchangeable.MAIN_MENU_SCENE_NAME);
         }
 
         /// <summary>Выти из игры</summary>
         public void OnExitGameClick() {
+            SoundController.Instance.PlayClickButton();
             Application.Quit();
         }
         #endregion 

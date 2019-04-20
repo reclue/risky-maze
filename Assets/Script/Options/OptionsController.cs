@@ -78,6 +78,7 @@ namespace ru.lifanoff.Options {
         #region Функции, которые запускаются при нажатии кнопок в Difficult
         /// <summary>Реакция на нажатие кнопки Back в меню выбора сложности игры</summary>
         public void DifficultBackButton() {
+            SoundController.Instance.PlayClickButton();
             mainMenuCanvas.SetActive(true);
             optionsMenuCanvas.SetActive(false);
             difficultCanvas.SetActive(false);
@@ -85,18 +86,21 @@ namespace ru.lifanoff.Options {
 
         /// <summary>Запуск игры в легком режиме</summary>
         public void DifficultEasyGameButton() {
+            SoundController.Instance.PlayClickButton();
             GameController.Instance.difficulMode = DifficultMode.EASY;
             GameController.Instance.GoToNextScene(Unchangeable.GAME_SCENE_NAME);
         }
 
         /// <summary>Запуск игры в среднем режиме</summary>
         public void DifficultMediumGameButton() {
+            SoundController.Instance.PlayClickButton();
             GameController.Instance.difficulMode = DifficultMode.MEDIUM;
             GameController.Instance.GoToNextScene(Unchangeable.GAME_SCENE_NAME);
         }
 
         /// <summary>Запуск игры в сложном режиме</summary>
         public void DifficultHardGameButton() {
+            SoundController.Instance.PlayClickButton();
             GameController.Instance.difficulMode = DifficultMode.HARD;
             GameController.Instance.GoToNextScene(Unchangeable.GAME_SCENE_NAME);
         }
@@ -106,6 +110,7 @@ namespace ru.lifanoff.Options {
         #region Функции, которые запускаются при нажатии кнопок в Main Menu
         /// <summary>Реакция на нажатие кнопки Game в главном меню (MainMenu)</summary>
         public void MainMenuGameButton() {
+            SoundController.Instance.PlayClickButton();
             mainMenuCanvas.SetActive(false);
             optionsMenuCanvas.SetActive(false);
             difficultCanvas.SetActive(true);
@@ -113,17 +118,22 @@ namespace ru.lifanoff.Options {
 
         /// <summary>Реакция на нажатие кнопки Options в главном меню (MainMenu)</summary>
         public void MainMenuOptionsButton() {
+            SoundController.Instance.PlayClickButton();
             mainMenuCanvas.SetActive(false);
             difficultCanvas.SetActive(false);
             /* При переходе из main menu в options надо сделать видимым слой graphics, 
              * а остальные слои скрыть. Для получения желаемого результат можно
              * использовать метод OptionMenuGraphicsButton() */
-            OptionMenuGraphicsButton();
+            //OptionMenuGraphicsButton();
+            AllDeactivate();
+            InsertDefaultOptions();
+            graphicsPanel.SetActive(true);
             optionsMenuCanvas.SetActive(true);
         }
 
         /// <summary>Реакция на нажатие кнопки Exit в главном меню (MainMenu)</summary>
         public void MainMenuExitButton() {
+            SoundController.Instance.PlayClickButton();
             Application.Quit();
         }
         #endregion
@@ -132,12 +142,14 @@ namespace ru.lifanoff.Options {
         #region Книпки Apply и Back в меню опций
         /// <summary>Реакция на нажатие кнопки ApplyButton в меню опций</summary>
         public void OptionMenuApplyButton() {
+            SoundController.Instance.PlayClickButton();
             SaveOptions();
             ApplySaveOptions();
         }
 
         /// <summary>Реакция на нажатие кнопки BackButton в меню опций</summary>
         public void OptionMenuBackButton() {
+            SoundController.Instance.PlayClickButton();
             mainMenuCanvas.SetActive(true);
             optionsMenuCanvas.SetActive(false);
             difficultCanvas.SetActive(false);
@@ -155,6 +167,7 @@ namespace ru.lifanoff.Options {
 
         /// <summary>Активировать только панель Graphics и отобразить акутальные настройки</summary>
         public void OptionMenuGraphicsButton() {
+            SoundController.Instance.PlayClickButton();
             AllDeactivate();
             InsertDefaultOptions();
             graphicsPanel.SetActive(true);
@@ -162,6 +175,7 @@ namespace ru.lifanoff.Options {
 
         /// <summary>Активировать только панель Music и отобразить акутальные настройки</summary>
         public void OptionMenuMusicButton() {
+            SoundController.Instance.PlayClickButton();
             AllDeactivate();
             InsertDefaultOptions();
             musicPanel.SetActive(true);
@@ -169,6 +183,7 @@ namespace ru.lifanoff.Options {
 
         /// <summary>Активировать только панель Control и отобразить акутальные настройки</summary>
         public void OptionMenuControlButton() {
+            SoundController.Instance.PlayClickButton();
             AllDeactivate();
             InsertDefaultOptions();
             controlPanel.SetActive(true);

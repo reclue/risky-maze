@@ -15,6 +15,7 @@ namespace ru.lifanoff {
 
         /// <summary>Выйти в главное меню игры</summary>
         public void OnMainMenuClick() {
+            SoundController.Instance.PlayClickButton();
             GameController.Instance.GoToNextScene(Unchangeable.MAIN_MENU_SCENE_NAME);
         }
 

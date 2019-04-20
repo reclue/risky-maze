@@ -74,3 +74,4 @@ MonoBehaviour:
   commonBackgroundMusic: {fileID: 8300000, guid: 0c58807106ee0cf4da1de1db946a1bae,
     type: 3}
   gameOverMusic: {fileID: 8300000, guid: 1a4478ddccacc524ca7159566f511e99, type: 3}
+  clickButtonSound: {fileID: 8300000, guid: 2e12b76736d7a5043ba43dbce0e380cd, type: 3}

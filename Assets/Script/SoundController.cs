@@ -40,6 +40,9 @@ namespace ru.lifanoff {
         [Tooltip("Game Over")]
         [SerializeField] private AudioClip gameOverMusic = null;
 
+        [Tooltip("Click Button")]
+        [SerializeField] private AudioClip clickButtonSound = null;
+
 
         /// <summary>Единственный экземпляр класса <seealso cref="SoundController"/></summary>
         public static SoundController Instance { get; private set; }
@@ -240,6 +243,10 @@ namespace ru.lifanoff {
         }
         #endregion Player Sounds
 
+        /// <summary>Звук проигрыша. При этом отключаются все прочие звуки.</summary>
+        public void PlayClickButton() {
+            oneShotAudioSource.PlayOneShot(clickButtonSound);
+        }
 
         #region Music
         /// <summary>Включить фоновую музыку</summary>
